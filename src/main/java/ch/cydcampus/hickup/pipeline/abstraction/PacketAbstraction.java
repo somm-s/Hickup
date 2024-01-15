@@ -1,46 +1,27 @@
-package ch.cydcampus.hickup.pipeline;
+package ch.cydcampus.hickup.pipeline.abstraction;
 
 import java.util.List;
 
+import ch.cydcampus.hickup.pipeline.PipelineConfig;
 import ch.cydcampus.hickup.pipeline.feature.Feature;
 
 public class PacketAbstraction implements Abstraction {
 
-    public static enum Protocol {
-        TCP, UDP, ANY;
-        public static Protocol fromInt(int parseInt) {
-            switch (parseInt) {
-                case 0:
-                    return TCP;
-                case 1:
-                    return UDP;
-                default:
-                    return ANY;
-            }
-        }
-
-        public static String toString(Protocol protocol) {
-            switch (protocol) {
-                case TCP:
-                    return "TCP";
-                case UDP:
-                    return "UDP";
-                default:
-                    return "ANY";
-            }
-        }
-    }
+    Feature[] features;
 
     @Override
     public long getLastUpdateTime() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getLastUpdateTime'");
+        return features[PipelineConfig.TIME_INDEX].asLong();
+    }
+
+    @Override
+    public long getFirstUpdateTime() {
+        return features[PipelineConfig.TIME_INDEX].asLong();
     }
 
     @Override
     public int getLevel() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getLevel'");
+        return 0;
     }
 
     @Override
@@ -79,15 +60,32 @@ public class PacketAbstraction implements Abstraction {
     }
 
     @Override
-    public void addFeatures(Feature[] feature) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addFeature'");
+    public void addFeatures(Feature[] features) {
+        this.features = features;
     }
 
     @Override
     public Feature[] getFeatures() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getFeatures'");
+        return this.features;
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("PacketAbstraction: \n");
+        for(Feature feature : features) {
+            sb.append(feature.getName() + ": " + feature.toString());
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public boolean isSealed() {
+        return true;
+    }
+
+    @Override
+    public void seal() {
     }
     
 }

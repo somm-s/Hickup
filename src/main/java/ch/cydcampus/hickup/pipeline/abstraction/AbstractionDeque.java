@@ -1,4 +1,4 @@
-package ch.cydcampus.hickup.pipeline;
+package ch.cydcampus.hickup.pipeline.abstraction;
 
 public interface AbstractionDeque {
     

@@ -2,12 +2,12 @@ package ch.cydcampus.hickup.pipeline.feature;
 
 import java.net.InetAddress;
 
-public class IntFeature implements Feature {
+public class ProtocolFeature implements Feature {
 
-    int value;
+    Protocol value;
     String name;
 
-    public IntFeature(int value, String name) {
+    public ProtocolFeature(Protocol value, String name) {
         this.value = value;
         this.name = name;
     }
@@ -18,28 +18,47 @@ public class IntFeature implements Feature {
     }
 
     @Override
-    public int asInt() {
+    public Protocol asProtocol() {
         return value;
     }
 
     @Override
-    public void set(int value) {
+    public void set(Protocol value) {
         this.value = value;
     }
 
     @Override
-    public int compareTo(Feature otherFeature) {
-        return value - otherFeature.asInt();
+    public String toString() {
+        return value.toString();
     }
 
     @Override
     public FeatureType getType() {
-        return FeatureType.INT;
+        return FeatureType.PROTOCOL;
     }
 
     @Override
-    public String toString() {
-        return Integer.toString(value);
+    public InetAddress asIP() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'asIP'");
+    }
+
+    @Override
+    public void set(InetAddress value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'set'");
+    }
+
+    @Override
+    public int asInt() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'asInt'");
+    }
+
+    @Override
+    public void set(int value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'set'");
     }
 
     @Override
@@ -151,27 +170,9 @@ public class IntFeature implements Feature {
     }
 
     @Override
-    public InetAddress asIP() {
+    public int compareTo(Feature otherFeature) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asIP'");
-    }
-
-    @Override
-    public void set(InetAddress value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
-    public Protocol asProtocol() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asProtocol'");
-    }
-
-    @Override
-    public void set(Protocol value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
+        throw new UnsupportedOperationException("Unimplemented method 'compareTo'");
     }
 
     @Override
@@ -181,7 +182,7 @@ public class IntFeature implements Feature {
 
     @Override
     public boolean equals(Feature otherFeature) {
-        return value == otherFeature.asInt();
+        return value == otherFeature.asProtocol();
     }
     
 }

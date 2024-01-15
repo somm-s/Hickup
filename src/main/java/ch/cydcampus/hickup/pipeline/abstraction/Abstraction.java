@@ -1,4 +1,4 @@
-package ch.cydcampus.hickup.pipeline;
+package ch.cydcampus.hickup.pipeline.abstraction;
 
 import java.util.List;
 
@@ -6,8 +6,12 @@ import ch.cydcampus.hickup.pipeline.feature.Feature;
 
 public interface Abstraction {
     
+    public boolean isSealed();
+    public void seal();
+
     // returns the time of last update in microseconds
     public long getLastUpdateTime();
+    public long getFirstUpdateTime();
 
     public int getLevel();
     public List<Abstraction> getChildren();

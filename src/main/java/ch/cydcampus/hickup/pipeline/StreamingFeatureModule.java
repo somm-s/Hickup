@@ -1,4 +1,4 @@
-package ch.cydcampus.hickup.pipeline.feature;
+package ch.cydcampus.hickup.pipeline;
 
 public class StreamingFeatureModule {
     public static enum AggregationStrategy {

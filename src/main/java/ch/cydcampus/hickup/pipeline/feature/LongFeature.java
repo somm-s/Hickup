@@ -2,12 +2,12 @@ package ch.cydcampus.hickup.pipeline.feature;
 
 import java.net.InetAddress;
 
-public class IntFeature implements Feature {
+public class LongFeature implements Feature {
 
-    int value;
+    long value;
     String name;
 
-    public IntFeature(int value, String name) {
+    public LongFeature(long value, String name) {
         this.value = value;
         this.name = name;
     }
@@ -18,28 +18,64 @@ public class IntFeature implements Feature {
     }
 
     @Override
-    public int asInt() {
+    public long asLong() {
         return value;
     }
 
     @Override
-    public void set(int value) {
+    public void set(long value) {
         this.value = value;
     }
 
     @Override
     public int compareTo(Feature otherFeature) {
-        return value - otherFeature.asInt();
+        return (int) (value - otherFeature.asLong());
     }
 
     @Override
     public FeatureType getType() {
-        return FeatureType.INT;
+        return FeatureType.LONG;
     }
 
     @Override
     public String toString() {
-        return Integer.toString(value);
+        return Long.toString(value);
+    }
+
+    @Override
+    public InetAddress asIP() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'asIP'");
+    }
+
+    @Override
+    public void set(InetAddress value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'set'");
+    }
+
+    @Override
+    public Protocol asProtocol() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'asProtocol'");
+    }
+
+    @Override
+    public void set(Protocol value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'set'");
+    }
+
+    @Override
+    public int asInt() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'asInt'");
+    }
+
+    @Override
+    public void set(int value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'set'");
     }
 
     @Override
@@ -86,18 +122,6 @@ public class IntFeature implements Feature {
 
     @Override
     public void set(float value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
-    public long asLong() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asLong'");
-    }
-
-    @Override
-    public void set(long value) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'set'");
     }
@@ -151,37 +175,12 @@ public class IntFeature implements Feature {
     }
 
     @Override
-    public InetAddress asIP() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asIP'");
-    }
-
-    @Override
-    public void set(InetAddress value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
-    public Protocol asProtocol() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asProtocol'");
-    }
-
-    @Override
-    public void set(Protocol value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
     public void cloneTo(Feature otherFeature) {
         otherFeature.set(value);
     }
 
     @Override
     public boolean equals(Feature otherFeature) {
-        return value == otherFeature.asInt();
+        return value == otherFeature.asLong();
     }
-    
 }

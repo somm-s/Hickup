@@ -1,4 +1,4 @@
-package ch.cydcampus.hickup.pipeline;
+package ch.cydcampus.hickup.pipeline.abstraction;
 
 import java.util.List;
 
@@ -7,18 +7,19 @@ import ch.cydcampus.hickup.pipeline.feature.Feature;
 public class HighOrderAbstraction implements Abstraction {
 
     private int level;
-    private long timeout;
     private long lastUpdateTime;
+    private long firstUpdateTime;
     private List<Abstraction> children;
     private Abstraction activeAbstraction;
     private Abstraction next;
     private Abstraction prev;
     private Feature[] features;
+    private boolean sealed = false;
 
-    public HighOrderAbstraction(int level, long timeout) {
+    public HighOrderAbstraction(int level) {
         this.level = level;
-        this.timeout = timeout;
         this.lastUpdateTime = 0;
+        this.firstUpdateTime = 0;
         this.children = null;
         this.activeAbstraction = null;
         this.next = null;
@@ -28,6 +29,11 @@ public class HighOrderAbstraction implements Abstraction {
     @Override
     public long getLastUpdateTime() {
         return lastUpdateTime;
+    }
+
+    @Override
+    public long getFirstUpdateTime() {
+        return firstUpdateTime;
     }
 
     @Override
@@ -42,6 +48,13 @@ public class HighOrderAbstraction implements Abstraction {
 
     @Override
     public void addChild(Abstraction abstraction) {
+        long updateTime = abstraction.getLastUpdateTime();
+        if(updateTime > lastUpdateTime) {
+            lastUpdateTime = updateTime;
+        }
+        if(firstUpdateTime == 0) {
+            firstUpdateTime = updateTime;
+        }
         children.add(abstraction);
     }
 
@@ -80,4 +93,26 @@ public class HighOrderAbstraction implements Abstraction {
         return features;
     }
 
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Abstraction Level: " + level + "\n");
+        sb.append("Last Update Time: " + lastUpdateTime + "\n");
+        sb.append("Features: \n");
+        for(Feature f : features) {
+            sb.append(f.getName() + ": " + f.toString() + "\n");
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public boolean isSealed() {
+        return sealed;
+    }
+
+    @Override
+    public void seal() {
+        sealed = true;
+    }
 }
