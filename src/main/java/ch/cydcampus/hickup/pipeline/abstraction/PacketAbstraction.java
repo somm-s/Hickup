@@ -87,5 +87,10 @@ public class PacketAbstraction implements Abstraction {
     @Override
     public void seal() {
     }
+
+    @Override
+    public Feature getFeature(int index) {
+        return features[index];
+    }
     
 }

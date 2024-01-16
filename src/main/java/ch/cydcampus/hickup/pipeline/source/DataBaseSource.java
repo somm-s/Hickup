@@ -29,7 +29,6 @@ public class DataBaseSource extends DataSource {
     private String query;
     private String querysuffix;
     private String url;
-    private boolean dataLoaded = false;
 
     private Connection connection;
 
@@ -136,7 +135,6 @@ public class DataBaseSource extends DataSource {
     public void start() {
         new Thread(() -> {
             getPointsFromSQL();
-            dataLoaded = true;
         }).start();
     }
 

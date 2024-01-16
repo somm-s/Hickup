@@ -11,6 +11,7 @@ import org.pcap4j.packet.UdpPacket;
 import ch.cydcampus.hickup.pipeline.PipelineConfig;
 import ch.cydcampus.hickup.pipeline.feature.Feature.Protocol;
 import ch.cydcampus.hickup.pipeline.feature.Feature;
+import ch.cydcampus.hickup.pipeline.feature.FeatureCopyRule;
 import ch.cydcampus.hickup.pipeline.feature.FeatureFactory;
 import ch.cydcampus.hickup.util.TimeInterval;
 
@@ -28,7 +29,9 @@ public class AbstractionFactory {
         return instance;
     }
 
+    /* Level is the level of the abstraction that is added, i.e. of the lower level abstraction */
     public Abstraction createHighOrderAbstraction(int level, Abstraction lowerAbstraction) {
+        assert level == lowerAbstraction.getLevel() + 1;
         assert level > 0;
         HighOrderAbstraction highOrderAbstraction = new HighOrderAbstraction(level);
         Feature[] features = new Feature[PipelineConfig.FEATURE_NAMES[level].length];
@@ -37,12 +40,12 @@ public class AbstractionFactory {
         for(int i = 0; i < PipelineConfig.FEATURE_NAMES[level].length; i++) {
             features[i] = FeatureFactory.createFeature(PipelineConfig.FEATURE_TYPES[level][i], null, PipelineConfig.FEATURE_NAMES[level][i]);
         }
-
-        Feature[] lowerFeatures = lowerAbstraction.getFeatures();
-        for(int i = 0; i < PipelineConfig.INIT_FEATURES[level].length; i++) {
-            lowerFeatures[PipelineConfig.INIT_FEATURES[level][i]].cloneTo(features[i]);
-        }
         highOrderAbstraction.addFeatures(features);
+
+        for(FeatureCopyRule rule : PipelineConfig.FEATURE_COPY_RULES[level]) {
+            rule.copy(lowerAbstraction, highOrderAbstraction);
+        }
+
         return highOrderAbstraction;
     }
 

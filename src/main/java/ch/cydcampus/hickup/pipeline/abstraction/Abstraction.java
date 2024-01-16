@@ -27,5 +27,6 @@ public interface Abstraction {
     // Feature interface
     public void addFeatures(Feature[] feature);
     public Feature[] getFeatures();
+    public Feature getFeature(int index);
 
 }

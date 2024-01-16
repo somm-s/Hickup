@@ -3,10 +3,10 @@ package ch.cydcampus.hickup.pipeline;
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
 import ch.cydcampus.hickup.pipeline.abstraction.AbstractionDeque;
 import ch.cydcampus.hickup.pipeline.abstraction.HighOrderAbstractionDeque;
+import ch.cydcampus.hickup.pipeline.feature.FeatureCombinationRule;
 import ch.cydcampus.hickup.pipeline.source.DataBaseSource;
 import ch.cydcampus.hickup.pipeline.source.DataSource;
-import ch.cydcampus.hickup.pipeline.stage.AbstractionRule;
-import ch.cydcampus.hickup.pipeline.stage.MultiplexerRule;
+import ch.cydcampus.hickup.pipeline.stage.AbstractionStage;
 import ch.cydcampus.hickup.pipeline.stage.MultiplexerStage;
 
 public class Pipeline {
@@ -25,9 +25,7 @@ public class Pipeline {
         }
         multiplexerStages = new MultiplexerStage[PipelineConfig.NUM_ABSTRACTION_LEVELS - 1];
         for(int i = 0; i < PipelineConfig.NUM_ABSTRACTION_LEVELS - 1; i++) {
-            AbstractionRule abstractionRule = new AbstractionRule(PipelineConfig.ABSRACTION_RULE_SAME_FEATURES[i], PipelineConfig.TIMEOUTS[i + 1]);
-            MultiplexerRule multiplexerRule = new MultiplexerRule(i, PipelineConfig.MULTIPLEXER_FEATURES[i]);
-            multiplexerStages[i] = new MultiplexerStage(i, multiplexerRule, abstractionRule);
+            multiplexerStages[i] = new MultiplexerStage(i, PipelineConfig.MULTIPLEXER_RULES[i], PipelineConfig.ABSTRACTION_RULES[i]);
         }
     }
 
@@ -52,10 +50,27 @@ public class Pipeline {
 
     private void processAbstraction(Abstraction abstraction, int level) {
 
-        // calculate combination features
+        for(FeatureCombinationRule rule : PipelineConfig.FEATURE_COMBINATION_RULES[level]) {
+            rule.combine(abstraction);
+        }
 
-        // extract attribute for 
+        // TODO: Apply filter rules
 
+        if(level >= PipelineConfig.NUM_ABSTRACTION_LEVELS - 1) {
+            System.out.println("Finished processing abstraction at level " + level + " " + abstraction);
+            return;
+        }
+
+        AbstractionStage abstractionStage = multiplexerStages[level].getAbstractionStage(abstraction);
+        Abstraction parentAbstraction = abstractionStage.addAbstraction(abstraction);
+
+        assert parentAbstraction != null; // should not happen as new abstraction is created if there is no active abstraction
+
+        if(parentAbstraction.isSealed()) {
+            processAbstraction(parentAbstraction, level + 1);
+        } else {
+            abstractionDeques[level + 1].addAbstraction(parentAbstraction);
+        }
     }
     
 

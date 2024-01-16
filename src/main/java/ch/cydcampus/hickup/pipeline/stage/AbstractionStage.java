@@ -2,8 +2,11 @@ package ch.cydcampus.hickup.pipeline.stage;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import ch.cydcampus.hickup.pipeline.PipelineConfig;
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
 import ch.cydcampus.hickup.pipeline.abstraction.AbstractionFactory;
+import ch.cydcampus.hickup.pipeline.feature.FeatureAggregationRule;
+import ch.cydcampus.hickup.pipeline.feature.FeatureDifferentialRule;
 
 public class AbstractionStage {
     
@@ -28,16 +31,20 @@ public class AbstractionStage {
             createActiveAbstraction(newAbstraction);
             prevChildAbstraction = newAbstraction;
             activeAbstraction.addChild(newAbstraction);
-            return null;
+            return activeAbstraction;
         }
 
-        // TODO: update differential features (if prevChildAbstraction != null)
+        for(FeatureDifferentialRule rule : PipelineConfig.FEATURE_DIFFERENTIAL_RULES[level]) {
+            rule.differential(prevChildAbstraction, newAbstraction);
+        }
 
         if(rule.belongsToActiveAbstraction(newAbstraction, activeAbstraction, prevChildAbstraction)) {
             prevChildAbstraction = newAbstraction;
             activeAbstraction.addChild(newAbstraction);
 
-            // TODO: update streaming features of activeAbstraction
+            for(FeatureAggregationRule rule : PipelineConfig.FEATURE_AGGREGATION_RULES[level]) {
+                rule.aggregate(activeAbstraction, newAbstraction);
+            }
 
             return activeAbstraction;
         } else {

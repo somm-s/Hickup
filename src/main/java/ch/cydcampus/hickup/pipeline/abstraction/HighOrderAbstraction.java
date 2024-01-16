@@ -1,5 +1,6 @@
 package ch.cydcampus.hickup.pipeline.abstraction;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import ch.cydcampus.hickup.pipeline.feature.Feature;
@@ -20,7 +21,7 @@ public class HighOrderAbstraction implements Abstraction {
         this.level = level;
         this.lastUpdateTime = 0;
         this.firstUpdateTime = 0;
-        this.children = null;
+        this.children = new LinkedList<>();
         this.activeAbstraction = null;
         this.next = null;
         this.prev = null;
@@ -114,5 +115,10 @@ public class HighOrderAbstraction implements Abstraction {
     @Override
     public void seal() {
         sealed = true;
+    }
+
+    @Override
+    public Feature getFeature(int index) {
+        return features[index];
     }
 }
