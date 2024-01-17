@@ -2,10 +2,10 @@ package ch.cydcampus.hickup.util;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
-import java.util.TimeZone;
 
 /*
  * Represents a microsecond precision time interval and provides methods for conversion. Thread safe.
@@ -16,7 +16,7 @@ public class TimeInterval implements Comparable<TimeInterval> {
         .appendPattern("yyyy-MM-dd HH:mm:ss")
         .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 6, true) // Append microseconds with 0-6 digits
         .toFormatter()
-        .withZone(TimeZone.getTimeZone("UTC").toZoneId());
+        .withZone(ZoneId.of("UTC"));
 
     private volatile long start;
     private volatile long end;
@@ -138,6 +138,15 @@ public class TimeInterval implements Comparable<TimeInterval> {
         long millis = micros / 1000;
         int nanos = (int) ((micros % 1000) * 1000);
         return Instant.ofEpochMilli(millis).plusNanos(nanos);
+    }
+
+    public static String microToTime(long micros) {
+        long seconds = micros / 1000000;
+        long nanos = (micros % 1000000) * 1000;
+
+        Timestamp timestamp = new Timestamp(seconds * 1000);
+        timestamp.setNanos((int) nanos); // Set nanoseconds from microseconds
+        return timestamp.toString();
     }
 
     public String toString() {

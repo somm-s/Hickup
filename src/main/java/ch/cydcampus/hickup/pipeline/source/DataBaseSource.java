@@ -8,16 +8,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Set;
 
 import ch.cydcampus.hickup.pipeline.abstraction.AbstractionFactory;
 import ch.cydcampus.hickup.pipeline.abstraction.PacketAbstraction;
 import ch.cydcampus.hickup.pipeline.feature.Feature.Protocol;
-import ch.cydcampus.hickup.pipeline.filter.Filter;
-import ch.cydcampus.hickup.pipeline.filter.IPFilter;
-import ch.cydcampus.hickup.pipeline.filter.PacketSizeFilter;
-import ch.cydcampus.hickup.pipeline.filter.TimeFilter;
-import ch.cydcampus.hickup.pipeline.filter.Filter.FilterType;
 import ch.cydcampus.hickup.util.TimeInterval;
 
 /*
@@ -26,10 +20,11 @@ import ch.cydcampus.hickup.util.TimeInterval;
  */
 public class DataBaseSource extends DataSource {
     
+    private static final int PACKETS_PER_CHUNK = 1000;
     private String query;
     private String querysuffix;
     private String url;
-
+    private String[] queryAdditions;
     private Connection connection;
 
     public DataBaseSource(String host, int port, String database, String user, String password, String table) {
@@ -45,63 +40,77 @@ public class DataBaseSource extends DataSource {
 
         this.query = "SELECT * FROM " + table + " WHERE 1 = 1";
         this.querysuffix = " ORDER BY timestamp";
-    }
 
-    @Override
-    public void setFilter(Filter filter) {
-    
-        // check type of filter and cast to correct type. Extract filter parameters and convert to sql query conditions.
-        FilterType filterType = filter.getFilterType();
+        String metadataQuery = "SELECT MIN(timestamp) AS min_time, MAX(timestamp) AS max_time, COUNT(*) AS num_packets, SUM(size) AS total_size FROM " + table + ";";
+        long minTime = 0; // in microseconds
+        long maxTime = 0; // in microseconds
+        long numPackets = 0; // number of packets
+        long totalSize = 0; // in bytes
 
-        switch (filterType) {
-            case IP:
-                IPFilter ipFilter = (IPFilter) filter;
-                String negation = ipFilter.isBlacklist() ? "NOT " : "";
-                String connector = ipFilter.isBlacklist() ? " AND " : " OR ";
-                String ips = "(";
-                for (InetAddress ip : ipFilter.getIps()) {
-                    ips += "'" + ip.getHostAddress() + "', ";
-                }
-                ips = ips.substring(0, ips.length() - 2) + ")";
-                query += " AND " + negation + "(src_ip IN " + ips + connector + "dst_ip IN " + ips + ")";
-                break;
-            case PACKET_SIZE:
-                PacketSizeFilter packetSizeFilter = (PacketSizeFilter) filter;
-                query += " AND ";
-                if(packetSizeFilter.isBlacklist()) {
-                    query += "NOT ";
-                }
-                query += "(size >= " + packetSizeFilter.getMinBytes() + " AND size <= " + packetSizeFilter.getMaxBytes() + ")";
-                break;
-            case TIME:
-                TimeFilter timeFilter = (TimeFilter) filter;
-                query += " AND ";
-                if(timeFilter.isBlacklist()) {
-                    query += "NOT ";
-                }
-                query += "(timestamp between '" + timeFilter.getMin() + "' AND '" + timeFilter.getMax() + "')";
-                break;
-            default:
-                throw new UnsupportedOperationException("Filter type " + filterType + " not supported by database source.");
+        try {
+            PreparedStatement statement = connection.prepareStatement(metadataQuery);
+            ResultSet resultSet = statement.executeQuery();
+            resultSet.next();
+            Timestamp minTimeTimestamp = resultSet.getTimestamp("min_time");
+            System.out.println("Min time: " + minTimeTimestamp);
+            Timestamp maxTimeTimestamp = resultSet.getTimestamp("max_time");
+            System.out.println("Max time: " + maxTimeTimestamp);
+            minTime = TimeInterval.timeToMicro(minTimeTimestamp);
+            maxTime = TimeInterval.timeToMicro(maxTimeTimestamp);
+            numPackets = resultSet.getLong("num_packets");
+            totalSize = resultSet.getLong("total_size");
+        } catch (SQLException e) {
+            System.err.println("Error executing query: " + e.getMessage());
         }
-        System.out.println(query);
-    }
+
+        System.out.println("Min time: " + (minTime / 1000000) + " seconds");
+        System.out.println("Max time: " + (maxTime / 1000000) + " seconds");
+        System.out.println("Duration (minutes): " + ((maxTime - minTime) / 1000000 / 60));
+        System.out.println("Number of packets: " + numPackets);
+        System.out.println("Total size: " + (totalSize / 1000000) + " MB");
 
 
-    @Override
-    public Set<FilterType> getSupportedFilters() {
-        return Set.of(FilterType.IP, FilterType.PORT, FilterType.TIME, FilterType.PACKET_SIZE, FilterType.PROTOCOL, FilterType.HOST_PAIR, FilterType.PORT_PAIR);
+        // compute amount of splits such that each split has around 100000 packets
+        int numSplits = (int) Math.ceil((double) numPackets / PACKETS_PER_CHUNK);
+        System.out.println("Number of splits: " + numSplits);
+
+        // compute time interval for each split
+        long timeInterval = (maxTime - minTime) / numSplits;
+        System.out.println("Time interval (s): " + (timeInterval / 1000000));
+
+        numSplits++; // add one split to get everything for sure
+
+        // compute query addition for each split
+        queryAdditions = new String[numSplits];
+        for(int i = 0; i < numSplits; i++) {
+            long start = minTime + i * timeInterval;
+            long end = minTime + (i + 1) * timeInterval;
+            queryAdditions[i] = " AND timestamp >= '" + TimeInterval.microToTime(start) + "' AND timestamp < '" + TimeInterval.microToTime(end) + "' ";
+        }
     }
 
     private void getPointsFromSQL() {
 
-        String query = this.query + this.querysuffix;
+        int i = 0;
+        while(i < queryAdditions.length) {
 
-        try {
-            PreparedStatement statement = connection.prepareStatement(query);
-            getPointsFromPreparedStatement(statement);
-        } catch (SQLException e) {
-            System.err.println("Error executing query: " + e.getMessage());
+            if(this.queueLimitReached()) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    System.err.println("Error sleeping: " + e.getMessage());
+                }
+                continue;
+            }
+
+            String query = this.query + this.queryAdditions[i++] + this.querysuffix;
+            System.out.println(query);
+            try {
+                PreparedStatement statement = connection.prepareStatement(query);
+                getPointsFromPreparedStatement(statement);
+            } catch (SQLException e) {
+                System.err.println("Error executing query: " + e.getMessage());
+            }
         }
     }
 

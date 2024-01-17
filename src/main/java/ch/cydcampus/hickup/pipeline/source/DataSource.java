@@ -5,20 +5,19 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
 import ch.cydcampus.hickup.pipeline.abstraction.AbstractionDeque;
-import ch.cydcampus.hickup.pipeline.filter.Filter;
-import ch.cydcampus.hickup.pipeline.filter.Filter.FilterType;
 
 public abstract class DataSource implements AbstractionDeque {
 
+    private static final int MAX_QUEUE_SIZE = 200000;
     private ConcurrentLinkedQueue<Abstraction> queue = new ConcurrentLinkedQueue<>();
 
     protected boolean produce(Abstraction abstraction) {
         return queue.offer(abstraction);
     }
 
-    public abstract void setFilter(Filter filter);
-
-    public abstract Set<FilterType> getSupportedFilters();
+    protected boolean queueLimitReached() {
+        return queue.size() >= MAX_QUEUE_SIZE;
+    }
 
     public abstract void start();
 

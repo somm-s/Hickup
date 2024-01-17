@@ -57,7 +57,7 @@ public class Pipeline {
         // TODO: Apply filter rules
 
         if(level >= PipelineConfig.NUM_ABSTRACTION_LEVELS - 1) {
-            System.out.println("Finished processing abstraction at level " + level + " " + abstraction);
+            // System.out.println("Finished processing abstraction at level " + level + " " + abstraction);
             return;
         }
 
@@ -73,7 +73,6 @@ public class Pipeline {
         }
     }
     
-
     public static void main(String[] args) {
         Pipeline pipeline = new Pipeline();
         pipeline.run();
