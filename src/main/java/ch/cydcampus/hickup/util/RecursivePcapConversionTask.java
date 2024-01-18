@@ -370,14 +370,6 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
         return Paths.get(directory).resolve(file).toString();
     }
 
-    private String combinePaths(String[] paths, String file) {
-        String path = paths[0];
-        for(int i = 1; i < paths.length; i++) {
-            path = Paths.get(path).resolve(paths[i]).toString();
-        }
-        return Paths.get(path).resolve(file).toString();
-    }
-
     private class TimeString implements Comparable<TimeString> {
         public String line;
         public long time;

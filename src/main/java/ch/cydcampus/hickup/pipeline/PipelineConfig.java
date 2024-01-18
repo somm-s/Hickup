@@ -39,28 +39,28 @@ public class PipelineConfig {
 
     // LEVEL 1
     public static final String[] LEVEL_1_FEATURES = new String[] {
-        "hostPairID", "bytes", "startTime", "endTime"
+        "hostPairID", "bytes"
     };
     public static final FeatureType[] LEVEL_1_FEATURE_TYPES = new FeatureType[] {
-        FeatureType.STRING, FeatureType.LONG, FeatureType.LONG, FeatureType.LONG
+        FeatureType.STRING, FeatureType.LONG
     };
 
     // LEVEL 2
     public static final String[] LEVEL_2_FEATURES = new String[] {
-        "hostPairID", "bytes", "startTime", "endTime"
+        "hostPairID", "bytes"
     };
 
     public static final FeatureType[] LEVEL_2_FEATURE_TYPES = new FeatureType[] {
-        FeatureType.STRING, FeatureType.LONG, FeatureType.LONG, FeatureType.LONG
+        FeatureType.STRING, FeatureType.LONG
     };
 
     // LEVEL 3
     public static final String[] LEVEL_3_FEATURES = new String[] {
-        "bytes", "startTime", "endTime"
+        "bytes"
     };
 
     public static final FeatureType[] LEVEL_3_FEATURE_TYPES = new FeatureType[] {
-        FeatureType.LONG, FeatureType.LONG, FeatureType.LONG
+        FeatureType.LONG
     };
 
 

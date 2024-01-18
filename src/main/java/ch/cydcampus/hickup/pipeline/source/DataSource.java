@@ -1,6 +1,5 @@
 package ch.cydcampus.hickup.pipeline.source;
 
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
@@ -17,6 +16,10 @@ public abstract class DataSource implements AbstractionDeque {
 
     protected boolean queueLimitReached() {
         return queue.size() >= MAX_QUEUE_SIZE;
+    }
+
+    public int getQueueSize() {
+        return queue.size();
     }
 
     public abstract void start();
