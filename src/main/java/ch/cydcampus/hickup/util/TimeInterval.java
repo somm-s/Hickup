@@ -170,7 +170,7 @@ public class TimeInterval implements Comparable<TimeInterval> {
         return timestamp;
     }
 
-    private String timeToString(Timestamp timestamp) {
+    public String timeToString(Timestamp timestamp) {
         // Convert Timestamp to Instant
         Instant instant = timestamp.toInstant();
 

@@ -29,6 +29,7 @@ public class PipelineConfig {
     public static final int PROTOCOL_INDEX = 4;
     public static final int BYTES_INDEX = 5;
     public static final int TIME_INDEX = 6;
+    public static final int NUM_DEFAULT_FEATURES = 7;
     public static final String[] LEVEL_0_FEATURES = new String[] {
         "srcIP", "dstIP", "srcPort", "dstPort", "protocol", "bytes", "time", "flowID", "hostPairID"
     };

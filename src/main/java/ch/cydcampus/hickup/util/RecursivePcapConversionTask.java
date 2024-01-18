@@ -1,4 +1,4 @@
-package com.lockedshields;
+package ch.cydcampus.hickup.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -6,13 +6,16 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
+
 import org.pcap4j.core.BpfProgram;
 import org.pcap4j.core.NotOpenException;
 import org.pcap4j.core.PacketListener;
@@ -21,7 +24,9 @@ import org.pcap4j.core.PcapHandle.TimestampPrecision;
 import org.pcap4j.core.PcapNativeException;
 import org.pcap4j.core.Pcaps;
 import org.pcap4j.packet.Packet;
-import com.hickup.points.IPPoint;
+
+import ch.cydcampus.hickup.pipeline.abstraction.PacketAbstraction;
+import ch.cydcampus.hickup.pipeline.abstraction.AbstractionFactory;
 
 public class RecursivePcapConversionTask extends RecursiveTask<Void>{
     
@@ -51,26 +56,16 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
         this.end = end;
     }
 
-    public static void main(String[] args) {
-        String pcapFolderPath = "/home/lab/Documents/networking/hickup-net/pcaps_diverse";
-        String outputPath = "/home/lab/Documents/networking/hickup-net/output";
-        // String PCAP_FOLDER_PATH = "/media/sosi/490d065d-ed08-4c6e-abd4-184715f06052/2022/BT03-CHE/pcaps";
-        // String OUTPUT_PATH = "/media/sosi/490d065d-ed08-4c6e-abd4-184715f06052/2022/BT03-CHE/ippointsV6";
-
-        String filter = "";
-
-        convertPcaps(pcapFolderPath, outputPath, filter);
-    }
-
     /**
      * Converts all pcap files in a folder to csv files containing IPPoints.
      * 
      * @param pcapFolderPath absolute path to folder containing pcap files
      * @param outputPath absolute path to folder where output files will be written
      * @param filter filter to apply to pcap files
+     * @throws IOException 
      */
-    public static void convertPcaps(String pcapFolderPath, String outputPath, String filter) {
-        ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
+    public static void convertPcaps(String pcapFolderPath, String outputPath, String filter, int numThreads) throws IOException {
+        ForkJoinPool forkJoinPool = new ForkJoinPool(numThreads);
         File folder = new File(pcapFolderPath);
         System.out.println(folder.listFiles());
         File[] listOfFiles = folder.listFiles();
@@ -81,6 +76,30 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
 
         forkJoinPool.invoke(task);
         forkJoinPool.shutdown();
+
+        // delete empty folders
+        File[] outputFolders = new File(outputPath).listFiles();
+        for(File outputFolder : outputFolders) {
+            if(outputFolder.isDirectory() && outputFolder.listFiles().length == 0) {
+                outputFolder.delete();
+            }
+        }
+
+        // list all files in output path
+        File[] outputFiles = new File(outputPath).listFiles();
+        File[] oldFiles = outputFiles[0].listFiles();
+        FolderCompressor.compressFolder(outputFiles[0].getAbsolutePath());
+
+        // delete uncompressed files
+        for(File outputFile : oldFiles) {
+            if(outputFile.isFile()) {
+                outputFile.delete();
+            }
+        }
+
+        // build index
+        FileIndexer indexer = new FileIndexer(outputFiles[0].getAbsolutePath());
+        indexer.index();
     }
 
     @Override
@@ -91,38 +110,6 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
             map(); // process pcap file
         }
         return null;
-    }
-
-    private boolean hasFileEnding(File file, String ending) {
-        String fileName = file.getName();
-
-        if(fileName.length() < ending.length()) {
-            return false;
-        }
-
-        String lastPart = fileName.substring(fileName.length() - ending.length() - 1, fileName.length());
-        return lastPart.equals("." + ending);
-    }
-
-    private boolean hasAllowedEnding(File file, String[] allowedEndings) {
-        for(String ending : allowedEndings) {
-            if(hasFileEnding(file, ending)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private String combinePaths(String directory, String file) {
-        return Paths.get(directory).resolve(file).toString();
-    }
-
-    private String combinePaths(String[] paths, String file) {
-        String path = paths[0];
-        for(int i = 1; i < paths.length; i++) {
-            path = Paths.get(path).resolve(paths[i]).toString();
-        }
-        return Paths.get(path).resolve(file).toString();
     }
 
     private void map() {
@@ -137,12 +124,10 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
             return;
         }
 
-        // use "start" as unique identifier for processed pcap file
         File pcapOutputDirectory = new File(combinePaths(outputPath, Integer.toString(pcapIndex)));
         pcapOutputDirectory.mkdirs();
 
         if(pcapFiles[pcapIndex].getName().endsWith(".pcap.gz")) {
-            // decompress pcap file
             String tempFilePath = combinePaths(pcapOutputDirectory.getAbsolutePath(), "temp.pcap");
             try {
                 PcapDecompressor.decompress(pcapFilePath, tempFilePath);
@@ -164,9 +149,6 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
             System.out.println("Couldn't open pcap file: " + pcapFilePath + ", skipping...");
             return;
         }
-
-        // TODO: change, currently we assume that the pcap file is sorted by time
-        // TODO: implement bucket sort to improve performance
         
         // create a packet listener
         PacketListener pl = new PacketListener() {
@@ -174,13 +156,18 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
             public void gotPacket(Packet packet) {
 
                 // parse packet to IPPoint
-                IPPoint point = IPPoint.parsePacket(packet, handle.getTimestamp());
-                if(point == null) {
+                PacketAbstraction abstraction = null;
+                try {
+                    abstraction = AbstractionFactory.getInstance().allocateFromNetwork(packet, handle.getTimestamp());
+                } catch (UnknownHostException e) {
+                    System.out.println("Unknown host exception, skipping...");
+                }
+                if(abstraction == null) {
+                    System.out.println("Could not parse abstraction, skipping...");
                     return;
                 }
 
-                // get filename corresponding to packet:
-                String timeString = IPPoint.timeToString(point.time);
+                String timeString = TimeInterval.microToTime(abstraction.getLastUpdateTime());
                 int colonIndex = timeString.indexOf(':');
                 String outFileName = timeString.substring(0, colonIndex + 3) + ".csv";
                 File outFile = new File(Paths.get(pcapOutputDirectory.getAbsolutePath()).resolve(outFileName).toString());
@@ -194,7 +181,8 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
                         }
                         writer = new BufferedWriter(new FileWriter(outFile, true));
                     }
-                    writer.write(point.toString() + "\n");
+
+                    writer.write(abstraction.serializeString() + "\n");
                 } catch (IOException e) {
                     System.out.println("Couldn't write point to: " + outFile.getAbsolutePath());
                     e.printStackTrace();
@@ -227,7 +215,7 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
         File file = new File(pcapFilePath);
         file.delete();
 
-        // System.out.println("Worker " + threadId + " Finished " + pcapFiles[start].getName());
+        System.out.println("Worker " + Thread.currentThread().getId() + " Finished " + pcapFiles[start].getName());
 
     }
 
@@ -242,7 +230,7 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
         leftTask.join();
         rightTask.join();
 
-        // System.out.println("Worker " + threadId + " Combining files " + start + " and " + mid);
+        System.out.println("Worker " + Thread.currentThread().getId() + " Combining files " + start + " and " + mid);
 
         // the results will be in start and mid, respectively. 
         File firstDirectory = new File(Paths.get(outputPath).resolve(Integer.toString(start)).toString());
@@ -288,36 +276,31 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
                 File file2 = new File(Paths.get(secondDirectory.getAbsolutePath()).resolve(conflictFile.getName()).toString());
                 BufferedReader reader2 = new BufferedReader(new FileReader(file2));
 
-                String line1 = reader1.readLine();
-                String line2 = reader2.readLine();
-                IPPoint p1 = null;
-                IPPoint p2 = null;
+                TimeString[] lines1 = reader1.lines()
+                        .map(TimeString::new)
+                        .toArray(TimeString[]::new);
+                
+                TimeString[] lines2 = reader2.lines()
+                        .map(TimeString::new)
+                        .toArray(TimeString[]::new);
 
-                while(line1 != null && !line1.equals("") && line2 != null && !line2.equals("")) {
-                    p1 = IPPoint.fromString(line1);
-                    p2 = IPPoint.fromString(line2);
+                System.out.println("started sorting " + conflictFile.getName() + " with " + lines1.length + " and " + lines2.length);
+                Arrays.sort(lines1);
+                Arrays.sort(lines2);
+                System.out.println("finished sorting " + conflictFile.getName());
 
-                    if(p1.time.getTime() < p2.time.getTime()) {
+                int i = 0;
+                int j = 0;
+                while(i < lines1.length && j < lines2.length) {
+                    if(lines1[i].compareTo(lines2[j]) < 0) {
                         // write p1
-                        combineWriter.write(p1.toString() + "\n");
-                        line1 = reader1.readLine();
+                        combineWriter.write(lines1[i].line + "\n");
+                        i++;
                     } else {
                         // write p2
-                        combineWriter.write(p2.toString() + "\n");
-                        line2 = reader2.readLine();
+                        combineWriter.write(lines2[j].line + "\n");
+                        j++;
                     }
-                }
-
-                while(line1 != null && !line1.equals("")) {
-                    p1 = IPPoint.fromString(line1);
-                    combineWriter.write(p1.toString() + "\n");
-                    line1 = reader1.readLine();
-                }
-
-                while(line2 != null && !line2.equals("")) {
-                    p2 = IPPoint.fromString(line2);
-                    combineWriter.write(p2.toString() + "\n");
-                    line2 = reader2.readLine();
                 }
 
                 combineWriter.flush();
@@ -353,11 +336,79 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
             }
         }
 
-        // System.out.println("Worker " + threadId + " Finished Combining " + start + " and " + mid);
+        System.out.println("Worker " + Thread.currentThread().getId() + " Finished Combining " + start + " and " + mid);
 
         return;
     }
 
+    private long timeFromLine(String line) {
+        String[] splits = line.split(",");
+        return Long.parseLong(splits[splits.length - 1]);
+    }
 
+    private boolean hasFileEnding(File file, String ending) {
+        String fileName = file.getName();
+
+        if(fileName.length() < ending.length()) {
+            return false;
+        }
+
+        String lastPart = fileName.substring(fileName.length() - ending.length() - 1, fileName.length());
+        return lastPart.equals("." + ending);
+    }
+
+    private boolean hasAllowedEnding(File file, String[] allowedEndings) {
+        for(String ending : allowedEndings) {
+            if(hasFileEnding(file, ending)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String combinePaths(String directory, String file) {
+        return Paths.get(directory).resolve(file).toString();
+    }
+
+    private String combinePaths(String[] paths, String file) {
+        String path = paths[0];
+        for(int i = 1; i < paths.length; i++) {
+            path = Paths.get(path).resolve(paths[i]).toString();
+        }
+        return Paths.get(path).resolve(file).toString();
+    }
+
+    private class TimeString implements Comparable<TimeString> {
+        public String line;
+        public long time;
+
+        public TimeString(String line) {
+            this.line = line;
+            this.time = timeFromLine(line);
+        }
+
+        @Override
+        public int compareTo(TimeString o) {
+            if(this.time < o.time) {
+                return -1;
+            } else if(this.time > o.time) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    }
+
+
+    public static void main(String[] args) throws IOException {
+        String pcapFolderPath = "/home/lab/Documents/networking/hickup-net/pcaps_diverse";
+        String outputPath = "/home/lab/Documents/networking/hickup-net/output";
+        // String PCAP_FOLDER_PATH = "/media/sosi/490d065d-ed08-4c6e-abd4-184715f06052/2022/BT03-CHE/pcaps";
+        // String OUTPUT_PATH = "/media/sosi/490d065d-ed08-4c6e-abd4-184715f06052/2022/BT03-CHE/ippointsV6";
+
+        String filter = "ip";
+
+        convertPcaps(pcapFolderPath, outputPath, filter, 16);
+    }
 
 }

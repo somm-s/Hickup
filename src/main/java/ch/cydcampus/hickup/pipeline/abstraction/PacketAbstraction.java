@@ -93,4 +93,13 @@ public class PacketAbstraction implements Abstraction {
         return features[index];
     }
     
+    public String serializeString() {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < PipelineConfig.NUM_DEFAULT_FEATURES; i++) {
+            sb.append(features[i].toString());
+            sb.append(",");
+        }
+        return sb.toString();
+    }
+
 }
