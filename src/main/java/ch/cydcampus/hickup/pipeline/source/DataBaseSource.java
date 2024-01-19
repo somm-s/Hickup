@@ -15,7 +15,6 @@ import ch.cydcampus.hickup.pipeline.feature.Feature.Protocol;
 import ch.cydcampus.hickup.util.TimeInterval;
 
 /*
- * TODO: Add functionality to go through data in chunks (e.g. 1 minute at a time)
  * First collect metadata about the query and then divide into chunks of right size.
  */
 public class DataBaseSource extends DataSource {

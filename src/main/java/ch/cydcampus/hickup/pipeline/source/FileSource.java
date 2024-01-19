@@ -16,14 +16,12 @@ import ch.cydcampus.hickup.pipeline.feature.Feature.Protocol;
 
 public class FileSource extends DataSource {
 
-    private String path;
     private String filterHost;
     private boolean doFilter;
     private long sizeFilter = 0;
     private File[] processFiles;
 
     public FileSource(String path, String filterHost, String sizeFilter) {
-        this.path = path;
         this.filterHost = filterHost;
         this.doFilter = filterHost != null && !filterHost.equals("") && filterHost.length() > 3;
         if(sizeFilter != null && !sizeFilter.equals("")) {
