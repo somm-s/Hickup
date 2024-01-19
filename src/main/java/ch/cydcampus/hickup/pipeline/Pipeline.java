@@ -115,7 +115,7 @@ public class Pipeline {
         }
 
         if(level >= PipelineConfig.NUM_ABSTRACTION_LEVELS - 1) {
-            System.out.println("Finished processing abstraction at level " + level + " " + abstraction);
+            // System.out.println("Finished processing abstraction at level " + level + " " + abstraction);
             // TODO send to output
             return;
         }
