@@ -40,31 +40,6 @@ public class PacketAbstraction implements Abstraction {
     }
 
     @Override
-    public Abstraction getActiveAbstraction() {
-        throw new UnsupportedOperationException("Unimplemented method 'getActiveAbstraction'");
-    }
-
-    @Override
-    public Abstraction getNext() {
-        throw new UnsupportedOperationException("Unimplemented method 'getNext'");
-    }
-
-    @Override
-    public Abstraction getPrev() {
-        throw new UnsupportedOperationException("Unimplemented method 'getPrev'");
-    }
-
-    @Override
-    public void setNext(Abstraction abstraction) {
-        throw new UnsupportedOperationException("Unimplemented method 'setNext'");
-    }
-
-    @Override
-    public void setPrev(Abstraction abstraction) {
-        throw new UnsupportedOperationException("Unimplemented method 'setPrev'");
-    }
-
-    @Override
     public void addFeatures(Feature[] features) {
         this.features = features;
     }
@@ -82,15 +57,6 @@ public class PacketAbstraction implements Abstraction {
             sb.append("\n");
         }
         return sb.toString();
-    }
-
-    @Override
-    public boolean isSealed() {
-        return true;
-    }
-
-    @Override
-    public void seal() {
     }
 
     @Override

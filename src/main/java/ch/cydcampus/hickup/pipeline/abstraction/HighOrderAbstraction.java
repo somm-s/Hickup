@@ -11,20 +11,13 @@ public class HighOrderAbstraction implements Abstraction {
     private long lastUpdateTime;
     private long firstUpdateTime;
     private List<Abstraction> children;
-    private Abstraction activeAbstraction;
-    private Abstraction next;
-    private Abstraction prev;
     private Feature[] features;
-    private boolean sealed = false;
 
     public HighOrderAbstraction(int level) {
         this.level = level;
         this.lastUpdateTime = 0;
         this.firstUpdateTime = 0;
         this.children = new LinkedList<>();
-        this.activeAbstraction = null;
-        this.next = null;
-        this.prev = null;
     }
 
     @Override
@@ -65,31 +58,6 @@ public class HighOrderAbstraction implements Abstraction {
     }
 
     @Override
-    public Abstraction getActiveAbstraction() {
-        return activeAbstraction;
-    }
-
-    @Override
-    public Abstraction getNext() {
-        return next;
-    }
-
-    @Override
-    public Abstraction getPrev() {
-        return prev;
-    }
-
-    @Override
-    public void setNext(Abstraction abstraction) {
-        next = abstraction;
-    }
-
-    @Override
-    public void setPrev(Abstraction abstraction) {
-        prev = abstraction;
-    }
-
-    @Override
     public void addFeatures(Feature[] features) {
         this.features = features;
     }
@@ -110,16 +78,6 @@ public class HighOrderAbstraction implements Abstraction {
             sb.append(f.getName() + ": " + f.toString() + "\n");
         }
         return sb.toString();
-    }
-
-    @Override
-    public boolean isSealed() {
-        return sealed;
-    }
-
-    @Override
-    public void seal() {
-        sealed = true;
     }
 
     @Override

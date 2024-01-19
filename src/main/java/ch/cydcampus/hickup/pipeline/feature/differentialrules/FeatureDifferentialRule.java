@@ -10,6 +10,7 @@ public interface FeatureDifferentialRule {
 
     public FeatureDifferentialRule setInputIndex(int index);
     public FeatureDifferentialRule setOutputIndex(int index);
+    // prev abstraction may be null --> use this to initialize the feature
     public void differential(Abstraction prevAbstraction, Abstraction newAbstraction);
     
 }
