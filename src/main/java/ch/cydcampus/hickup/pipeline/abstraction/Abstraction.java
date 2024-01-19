@@ -11,6 +11,7 @@ public interface Abstraction {
 
     // returns the time of last update in microseconds
     public long getLastUpdateTime();
+    public void setLastUpdateTime(long time);
     public long getFirstUpdateTime();
 
     public int getLevel();

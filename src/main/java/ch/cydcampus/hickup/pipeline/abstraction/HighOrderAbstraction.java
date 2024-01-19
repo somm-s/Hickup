@@ -33,6 +33,11 @@ public class HighOrderAbstraction implements Abstraction {
     }
 
     @Override
+    public void setLastUpdateTime(long time) {
+        lastUpdateTime = time;
+    }
+
+    @Override
     public long getFirstUpdateTime() {
         return firstUpdateTime;
     }

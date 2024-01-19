@@ -5,8 +5,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import ch.cydcampus.hickup.pipeline.PipelineConfig;
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
 import ch.cydcampus.hickup.pipeline.abstraction.AbstractionFactory;
-import ch.cydcampus.hickup.pipeline.feature.FeatureAggregationRule;
-import ch.cydcampus.hickup.pipeline.feature.FeatureDifferentialRule;
+import ch.cydcampus.hickup.pipeline.feature.aggregationrules.FeatureAggregationRule;
+import ch.cydcampus.hickup.pipeline.feature.differentialrules.FeatureDifferentialRule;
 
 public class AbstractionStage {
     
@@ -24,7 +24,6 @@ public class AbstractionStage {
 
     /*
      * Add an abstraction of same level to the stage. Return abstraction of level + 1.
-     * 
      */
     public Abstraction addAbstraction(Abstraction newAbstraction) {
         if(activeAbstraction == null) { // first abstraction

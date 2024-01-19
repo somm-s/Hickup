@@ -3,7 +3,7 @@ package ch.cydcampus.hickup.pipeline;
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
 import ch.cydcampus.hickup.pipeline.abstraction.AbstractionDeque;
 import ch.cydcampus.hickup.pipeline.abstraction.HighOrderAbstractionDeque;
-import ch.cydcampus.hickup.pipeline.feature.FeatureCombinationRule;
+import ch.cydcampus.hickup.pipeline.feature.combinationrules.FeatureCombinationRule;
 import ch.cydcampus.hickup.pipeline.source.DataSource;
 import ch.cydcampus.hickup.pipeline.source.FileSource;
 import ch.cydcampus.hickup.pipeline.stage.AbstractionStage;
@@ -13,13 +13,13 @@ public class Pipeline {
 
     private AbstractionDeque[] abstractionDeques;
     private DataSource dataSource;
-    private long logicalTime; // TODO: add suport for real time
+    private long logicalTime; // TODO: add suport for real time. Measure the delta time since last packet and add it to logical time when spinning. Do it with slight delay.
     private MultiplexerStage[] multiplexerStages;
 
     public Pipeline() {
         abstractionDeques = new AbstractionDeque[4];
         // dataSource = new DataBaseSource("localhost", 5432,"ls22", "lab", "lab", "capture");
-        dataSource = new FileSource("output/0", "", "150");
+        dataSource = new FileSource("/home/sosi/ls22/2022/BT03-CHE/abstractions/0", "10.3.8.38", "150");
         abstractionDeques[0] = dataSource;
         for(int i = 1; i < PipelineConfig.NUM_ABSTRACTION_LEVELS; i++) {
             abstractionDeques[i] = new HighOrderAbstractionDeque(i, PipelineConfig.TIMEOUTS[i]);
@@ -66,9 +66,7 @@ public class Pipeline {
 
         assert parentAbstraction != null; // should not happen as new abstraction is created if there is no active abstraction
 
-        if(parentAbstraction.isSealed()) {
-            processAbstraction(parentAbstraction, level + 1);
-        } else {
+        if(!parentAbstraction.isSealed()) {
             abstractionDeques[level + 1].addAbstraction(parentAbstraction);
         }
     }

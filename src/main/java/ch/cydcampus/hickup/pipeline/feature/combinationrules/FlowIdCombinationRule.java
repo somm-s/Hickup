@@ -1,7 +1,8 @@
-package ch.cydcampus.hickup.pipeline.feature;
+package ch.cydcampus.hickup.pipeline.feature.combinationrules;
 
 import ch.cydcampus.hickup.pipeline.PipelineConfig;
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
+import ch.cydcampus.hickup.pipeline.feature.Feature;
 
 public class FlowIdCombinationRule implements FeatureCombinationRule {
 

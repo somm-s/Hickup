@@ -15,6 +15,11 @@ public class PacketAbstraction implements Abstraction {
     }
 
     @Override
+    public void setLastUpdateTime(long time) {
+        throw new RuntimeException("Cannot change update time of packet abstraction");
+    }
+
+    @Override
     public long getFirstUpdateTime() {
         return features[PipelineConfig.TIME_INDEX].asLong();
     }

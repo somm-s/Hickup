@@ -10,8 +10,8 @@ import org.pcap4j.packet.UdpPacket;
 
 import ch.cydcampus.hickup.pipeline.PipelineConfig;
 import ch.cydcampus.hickup.pipeline.feature.Feature.Protocol;
+import ch.cydcampus.hickup.pipeline.feature.copyrules.FeatureCopyRule;
 import ch.cydcampus.hickup.pipeline.feature.Feature;
-import ch.cydcampus.hickup.pipeline.feature.FeatureCopyRule;
 import ch.cydcampus.hickup.pipeline.feature.FeatureFactory;
 import ch.cydcampus.hickup.util.TimeInterval;
 

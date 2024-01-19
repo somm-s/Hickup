@@ -1,13 +1,13 @@
 package ch.cydcampus.hickup.pipeline;
 
-import ch.cydcampus.hickup.pipeline.feature.FeatureAggregationRule;
-import ch.cydcampus.hickup.pipeline.feature.FeatureCombinationRule;
-import ch.cydcampus.hickup.pipeline.feature.FeatureCopyRule;
-import ch.cydcampus.hickup.pipeline.feature.FeatureDifferentialRule;
-import ch.cydcampus.hickup.pipeline.feature.FeatureSumRule;
-import ch.cydcampus.hickup.pipeline.feature.FlowIdCombinationRule;
-import ch.cydcampus.hickup.pipeline.feature.HostPairIdCombinationRule;
 import ch.cydcampus.hickup.pipeline.feature.Feature.FeatureType;
+import ch.cydcampus.hickup.pipeline.feature.aggregationrules.FeatureAggregationRule;
+import ch.cydcampus.hickup.pipeline.feature.aggregationrules.FeatureSumRule;
+import ch.cydcampus.hickup.pipeline.feature.combinationrules.FeatureCombinationRule;
+import ch.cydcampus.hickup.pipeline.feature.combinationrules.FlowIdCombinationRule;
+import ch.cydcampus.hickup.pipeline.feature.combinationrules.HostPairIdCombinationRule;
+import ch.cydcampus.hickup.pipeline.feature.copyrules.FeatureCopyRule;
+import ch.cydcampus.hickup.pipeline.feature.differentialrules.FeatureDifferentialRule;
 import ch.cydcampus.hickup.pipeline.stage.AbstractionRule;
 import ch.cydcampus.hickup.pipeline.stage.MultiplexerRule;
 

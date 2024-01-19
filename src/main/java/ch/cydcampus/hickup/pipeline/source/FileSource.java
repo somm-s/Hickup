@@ -60,6 +60,7 @@ public class FileSource extends DataSource {
             e.printStackTrace();
         }
 
+        
         if(parts == null) {
             System.out.println("Host not found in index file.");
             throw new RuntimeException("Host not found in index file.");

@@ -1,4 +1,4 @@
-package ch.cydcampus.hickup.pipeline.feature;
+package ch.cydcampus.hickup.pipeline.feature.copyrules;
 
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
 
