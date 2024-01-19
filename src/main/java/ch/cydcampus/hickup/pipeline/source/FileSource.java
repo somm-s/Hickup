@@ -84,6 +84,7 @@ public class FileSource extends DataSource {
         for (File file : processFiles) {
             if (file.isFile()) {
                 System.out.println("Processing file " + file.getName());
+                System.out.println("Queue size: " + this.getQueueSize());
                 if(file.getName().endsWith(".zip")) {
                     readZipFile(file);
                 }

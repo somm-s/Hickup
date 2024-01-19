@@ -23,7 +23,7 @@ public class Pipeline {
     public Pipeline() {
         abstractionQueues = new AbstractionDeque[4];
         // dataSource = new DataBaseSource("localhost", 5432,"ls22", "lab", "lab", "capture");
-        dataSource = new FileSource("/home/sosi/ls22/2022/BT03-CHE/abstractions/0", "10.3.8.38", "150");
+        dataSource = new FileSource("/home/sosi/ls22/2022/BT03-CHE/abstractions/0", "", "150"); // 10.3.8.38
         abstractionQueues[0] = dataSource;
         for(int i = 1; i < PipelineConfig.NUM_ABSTRACTION_LEVELS; i++) {
             abstractionQueues[i] = new HighOrderAbstractionQueue(PipelineConfig.TIMEOUTS[i]);
@@ -43,7 +43,6 @@ public class Pipeline {
 
         while(true) { // main loop. TODO: Exit condition.
             getNextIndex();
-
             if(nextIndex < 0) {
                 try {
                     Thread.sleep(5);
@@ -52,6 +51,7 @@ public class Pipeline {
             }
 
             Abstraction abstraction = nextElements[nextIndex];
+
             nextElements[nextIndex] = null;
 
             if(nextIndex == 0) { // packet abstraction
@@ -59,7 +59,6 @@ public class Pipeline {
             } 
 
             processAbstraction(abstraction, nextIndex);
-
         }
     }
 
