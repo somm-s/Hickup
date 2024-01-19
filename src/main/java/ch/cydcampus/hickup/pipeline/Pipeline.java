@@ -114,8 +114,11 @@ public class Pipeline {
         }
 
         if(level >= PipelineConfig.NUM_ABSTRACTION_LEVELS - 1) {
-            // System.out.println("Finished processing abstraction at level " + level + " " + abstraction);
-            // TODO send to output
+            System.out.print(abstraction.getFeature(0) + "(");
+            for(Abstraction abs : abstraction.getChildren()) {
+                System.out.print(abs.getFeature(0) + ", ");
+            }
+            System.out.println(")");
             return;
         }
 
@@ -141,7 +144,6 @@ public class Pipeline {
         abstractionStage.setActiveAbstraction(activeAbstraction);
 
     }
-    
 
     public static void main(String[] args) {
         Pipeline pipeline = new Pipeline();
