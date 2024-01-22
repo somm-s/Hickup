@@ -1,5 +1,8 @@
 package ch.cydcampus.hickup.pipeline;
 
+import org.pcap4j.core.NotOpenException;
+import org.pcap4j.core.PcapNativeException;
+
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
 import ch.cydcampus.hickup.pipeline.abstraction.AbstractionQueue;
 import ch.cydcampus.hickup.pipeline.abstraction.HighOrderAbstractionQueue;
@@ -9,6 +12,7 @@ import ch.cydcampus.hickup.pipeline.feature.combinationrules.FeatureCombinationR
 import ch.cydcampus.hickup.pipeline.feature.differentialrules.FeatureDifferentialRule;
 import ch.cydcampus.hickup.pipeline.source.DataSource;
 import ch.cydcampus.hickup.pipeline.source.FileSource;
+import ch.cydcampus.hickup.pipeline.source.NetworkSource;
 import ch.cydcampus.hickup.pipeline.stage.AbstractionStage;
 import ch.cydcampus.hickup.pipeline.stage.MultiplexerStage;
 
@@ -20,10 +24,11 @@ public class Pipeline {
     private MultiplexerStage[] multiplexerStages;
     private boolean finished;
 
-    public Pipeline() {
+    public Pipeline() throws PcapNativeException, NotOpenException {
         abstractionQueues = new AbstractionQueue[PipelineConfig.NUM_ABSTRACTION_LEVELS];
         // dataSource = new DataBaseSource("localhost", 5432,"ls22", "lab", "lab", "capture");
-        dataSource = new FileSource("/home/sosi/ls22/2022/BT03-CHE/abstractions/0", "", "150"); // 10.3.8.38 // /home/sosi/ls22/2022/BT03-CHE/abstractions/0 // integration_tests
+        // dataSource = new FileSource("/home/sosi/ls22/2022/BT03-CHE/abstractions/0", "", "150"); // 10.3.8.38 // /home/sosi/ls22/2022/BT03-CHE/abstractions/0 // integration_tests
+        dataSource = new NetworkSource("wlp0s20f3", "ip");
         abstractionQueues[0] = dataSource;
         for(int i = 1; i < PipelineConfig.NUM_ABSTRACTION_LEVELS; i++) {
             abstractionQueues[i] = new HighOrderAbstractionQueue(i, PipelineConfig.TIMEOUTS);
@@ -82,7 +87,7 @@ public class Pipeline {
         }
 
         if(level >= PipelineConfig.NUM_ABSTRACTION_LEVELS - 1) {
-            // System.out.print(abstraction.getFeature(0) + " ");
+            System.out.print(abstraction.getFeature(0) + " ");
             // System.out.println(sum + " " + deepSum + ")");
             return;
         }
@@ -109,7 +114,7 @@ public class Pipeline {
         abstractionStage.setActiveAbstraction(activeAbstraction);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws PcapNativeException, NotOpenException {
         Pipeline pipeline = new Pipeline();
         pipeline.run();
     }
