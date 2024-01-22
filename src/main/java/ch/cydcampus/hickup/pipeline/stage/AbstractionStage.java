@@ -32,7 +32,7 @@ public class AbstractionStage {
     }
 
     public boolean applyRule(Abstraction abstraction) {
-        return rule.belongsToActiveAbstraction(prevChildAbstraction, activeAbstraction, abstraction);
+        return rule.belongsToActiveAbstraction(abstraction, activeAbstraction, prevChildAbstraction);
     }
 
     public Abstraction createActiveAbstraction(Abstraction childAbstraction) {

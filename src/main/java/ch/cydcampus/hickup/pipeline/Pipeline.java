@@ -21,7 +21,7 @@ public class Pipeline {
     private boolean finished;
 
     public Pipeline() {
-        abstractionQueues = new AbstractionQueue[4];
+        abstractionQueues = new AbstractionQueue[PipelineConfig.NUM_ABSTRACTION_LEVELS];
         // dataSource = new DataBaseSource("localhost", 5432,"ls22", "lab", "lab", "capture");
         dataSource = new FileSource("/home/sosi/ls22/2022/BT03-CHE/abstractions/0", "", "150"); // 10.3.8.38 // /home/sosi/ls22/2022/BT03-CHE/abstractions/0 // integration_tests
         abstractionQueues[0] = dataSource;
@@ -47,7 +47,7 @@ public class Pipeline {
                 continue;
             } else if(idx == 0) {
                 if(abstraction == PacketAbstraction.FINISH_PACKET) {
-                    System.out.println("Finish abstraction received");
+                    // System.out.println("Finish abstraction received");
                     finished = true;
                     idx = idx + 1;
                     logicClock = Long.MAX_VALUE;
@@ -82,16 +82,8 @@ public class Pipeline {
         }
 
         if(level >= PipelineConfig.NUM_ABSTRACTION_LEVELS - 1) {
-            System.out.println(abstraction.getFeature(0) + " " + abstraction.getFirstUpdateTime() + " " + abstraction.getLastUpdateTime() + "(");
-            long sum = 0;
-            long deepSum = 0;
-            for(Abstraction abs : abstraction.getChildren()) {
-                sum += abs.getFeature(1).asLong();
-                for(Abstraction ab : abs.getChildren()) {
-                    deepSum += ab.getFeature(PipelineConfig.BYTES_INDEX).asLong();
-                }
-            }
-            System.out.println(sum + " " + deepSum + ")");
+            // System.out.print(abstraction.getFeature(0) + " ");
+            // System.out.println(sum + " " + deepSum + ")");
             return;
         }
 

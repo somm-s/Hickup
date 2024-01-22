@@ -64,7 +64,7 @@ public class FileSource extends DataSource {
             throw new RuntimeException("Host not found in index file.");
         }
 
-        System.out.println("Found " + parts[1] + " files for host " + filterHost + ".");
+        // System.out.println("Found " + parts[1] + " files for host " + filterHost + ".");
 
         processFiles = new File[parts.length - 2];
         for(int i = 2; i < parts.length; i++) {
@@ -83,9 +83,8 @@ public class FileSource extends DataSource {
     private void loadFromFiles() {
         for (File file : processFiles) {
             if (file.isFile()) {
-                System.out.println("Processing file " + file.getName());
-                System.out.println("Queue size: " + this.getQueueSize());
                 if(file.getName().endsWith(".zip")) {
+                    System.out.println("Processing file " + file.getName());
                     readZipFile(file);
                 }
                 else if(file.getName().endsWith(".csv")) {
