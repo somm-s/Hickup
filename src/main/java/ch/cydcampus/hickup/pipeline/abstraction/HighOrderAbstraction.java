@@ -12,12 +12,14 @@ public class HighOrderAbstraction implements Abstraction {
     private long firstUpdateTime;
     private List<Abstraction> children;
     private Feature[] features;
+    private boolean sealed;
 
     public HighOrderAbstraction(int level) {
         this.level = level;
         this.lastUpdateTime = 0;
         this.firstUpdateTime = 0;
         this.children = new LinkedList<>();
+        this.sealed = false;
     }
 
     @Override
@@ -33,6 +35,16 @@ public class HighOrderAbstraction implements Abstraction {
     @Override
     public long getFirstUpdateTime() {
         return firstUpdateTime;
+    }
+
+    @Override
+    public boolean isSealed() {
+        return sealed;
+    }
+
+    @Override
+    public void seal() {
+        sealed = true;
     }
 
     @Override
@@ -52,7 +64,7 @@ public class HighOrderAbstraction implements Abstraction {
             lastUpdateTime = updateTime;
         }
         if(firstUpdateTime == 0) {
-            firstUpdateTime = updateTime;
+            firstUpdateTime = abstraction.getFirstUpdateTime();
         }
         children.add(abstraction);
     }

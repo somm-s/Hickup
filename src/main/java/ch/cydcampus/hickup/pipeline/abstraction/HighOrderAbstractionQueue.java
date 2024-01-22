@@ -2,13 +2,19 @@ package ch.cydcampus.hickup.pipeline.abstraction;
 
 import java.util.Queue;
 
-public class HighOrderAbstractionQueue implements AbstractionDeque {
+public class HighOrderAbstractionQueue implements AbstractionQueue {
 
     private long timeout; // timeout in microseconds
     private Queue<Abstraction> queue;
 
-    public HighOrderAbstractionQueue(long timeout) {
-        this.timeout = timeout;
+    public HighOrderAbstractionQueue(int level, long[] timeouts) {
+        long maxTimeout = 0;
+        for(int i = 0; i < level + 1; i++) {
+            if(timeouts[i] > maxTimeout) {
+                maxTimeout = timeouts[i];
+            }
+        }
+        this.timeout = maxTimeout;
         this.queue = new java.util.LinkedList<Abstraction>();
     }
     

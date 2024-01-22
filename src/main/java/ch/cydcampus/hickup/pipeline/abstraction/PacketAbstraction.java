@@ -8,6 +8,7 @@ import ch.cydcampus.hickup.pipeline.feature.Feature;
 public class PacketAbstraction implements Abstraction {
 
     Feature[] features;
+    public static final Abstraction FINISH_PACKET = new FinishPacketAbstraction();
 
     @Override
     public long getLastUpdateTime() {
@@ -22,6 +23,16 @@ public class PacketAbstraction implements Abstraction {
     @Override
     public long getFirstUpdateTime() {
         return features[PipelineConfig.TIME_INDEX].asLong();
+    }
+
+    @Override
+    public boolean isSealed() {
+        return true;
+    }
+
+    @Override
+    public void seal() {
+        // do nothing
     }
 
     @Override

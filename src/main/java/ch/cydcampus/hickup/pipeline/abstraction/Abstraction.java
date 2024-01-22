@@ -15,6 +15,9 @@ public interface Abstraction {
     public List<Abstraction> getChildren();
     public void addChild(Abstraction abstraction);
 
+    public boolean isSealed();
+    public void seal();
+
     // Feature interface
     public void addFeatures(Feature[] feature);
     public Feature[] getFeatures();

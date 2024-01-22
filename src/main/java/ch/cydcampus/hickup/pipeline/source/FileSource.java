@@ -93,6 +93,7 @@ public class FileSource extends DataSource {
                 }
             }
         }
+        this.finish();
     }
 
     private void processLine(String line) {

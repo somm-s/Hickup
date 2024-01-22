@@ -16,7 +16,7 @@ public class PipelineConfig {
     public static final int NUM_ABSTRACTION_LEVELS = 3;
     public static final int MAX_ABSTRACTION_LEVEL = NUM_ABSTRACTION_LEVELS - 1;
 
-    public static final int[] TIMEOUTS = { 0, 30000, 1000000 };
+    public static final long[] TIMEOUTS = { 0, 30000, 1000000 };
 
 
     // Always order Init Features - Combination Features - Differential Features - Streaming Features
@@ -39,10 +39,10 @@ public class PipelineConfig {
 
     // LEVEL 1
     public static final String[] LEVEL_1_FEATURES = new String[] {
-        "bytes"
+        "hostPairID", "bytes"
     };
     public static final FeatureType[] LEVEL_1_FEATURE_TYPES = new FeatureType[] {
-        FeatureType.LONG
+        FeatureType.STRING, FeatureType.LONG
     };
 
     // LEVEL 2
@@ -83,15 +83,15 @@ public class PipelineConfig {
 
     // Aggregation rules. Each level of abstraction has an array of streaming rules.
     public static final FeatureAggregationRule[][] FEATURE_AGGREGATION_RULES = {
-        {new FeatureSumRule().setInputIndex(BYTES_INDEX).setOutputIndex(0)},
-        {new FeatureSumRule().setInputIndex(0).setOutputIndex(0)},
+        {new FeatureSumRule().setInputIndex(BYTES_INDEX).setOutputIndex(1)},
+        {new FeatureSumRule().setInputIndex(1).setOutputIndex(0)},
         {} // always empty
     };
 
     // Initial features. Each level of abstraction has an array of initial features.
     public static final FeatureCopyRule[][] FEATURE_COPY_RULES = {
         {}, // always empty
-        {},
+        {new FeatureCopyRule().setInputIndex(8).setOutputIndex(0)},
         {}
     };
 
