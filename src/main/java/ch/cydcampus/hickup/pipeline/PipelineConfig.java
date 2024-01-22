@@ -8,6 +8,8 @@ import ch.cydcampus.hickup.pipeline.feature.combinationrules.FlowIdCombinationRu
 import ch.cydcampus.hickup.pipeline.feature.combinationrules.HostPairIdCombinationRule;
 import ch.cydcampus.hickup.pipeline.feature.copyrules.FeatureCopyRule;
 import ch.cydcampus.hickup.pipeline.feature.differentialrules.FeatureDifferentialRule;
+import ch.cydcampus.hickup.pipeline.filter.FilterRule;
+import ch.cydcampus.hickup.pipeline.filter.SizeFilter;
 import ch.cydcampus.hickup.pipeline.stage.AbstractionRule;
 import ch.cydcampus.hickup.pipeline.stage.MultiplexerRule;
 
@@ -92,6 +94,12 @@ public class PipelineConfig {
     public static final FeatureCopyRule[][] FEATURE_COPY_RULES = {
         {}, // always empty
         {new FeatureCopyRule().setInputIndex(8).setOutputIndex(0)},
+        {}
+    };
+
+    public static final FilterRule[][] FILTER_RULES = {
+        {new SizeFilter(150)},
+        {},
         {}
     };
 

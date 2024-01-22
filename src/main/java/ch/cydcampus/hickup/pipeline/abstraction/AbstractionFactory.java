@@ -56,7 +56,6 @@ public class AbstractionFactory {
      */
     public PacketAbstraction allocateFromNetwork(org.pcap4j.packet.Packet networkPacket, Timestamp timestamp) throws UnknownHostException {
         if(!networkPacket.contains(IpPacket.class)) {
-            System.out.println("Packet does not contain IP packet");
             return null;
         }
 

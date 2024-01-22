@@ -10,6 +10,7 @@ import ch.cydcampus.hickup.pipeline.abstraction.PacketAbstraction;
 import ch.cydcampus.hickup.pipeline.feature.aggregationrules.FeatureAggregationRule;
 import ch.cydcampus.hickup.pipeline.feature.combinationrules.FeatureCombinationRule;
 import ch.cydcampus.hickup.pipeline.feature.differentialrules.FeatureDifferentialRule;
+import ch.cydcampus.hickup.pipeline.filter.FilterRule;
 import ch.cydcampus.hickup.pipeline.source.DataSource;
 import ch.cydcampus.hickup.pipeline.source.FileSource;
 import ch.cydcampus.hickup.pipeline.source.NetworkSource;
@@ -28,7 +29,7 @@ public class Pipeline {
         abstractionQueues = new AbstractionQueue[PipelineConfig.NUM_ABSTRACTION_LEVELS];
         // dataSource = new DataBaseSource("localhost", 5432,"ls22", "lab", "lab", "capture");
         // dataSource = new FileSource("/home/sosi/ls22/2022/BT03-CHE/abstractions/0", "", "150"); // 10.3.8.38 // /home/sosi/ls22/2022/BT03-CHE/abstractions/0 // integration_tests
-        dataSource = new NetworkSource("wlp0s20f3", "ip[2:2] > 150");
+        dataSource = new NetworkSource("wlp0s20f3", "");
         abstractionQueues[0] = dataSource;
         for(int i = 1; i < PipelineConfig.NUM_ABSTRACTION_LEVELS; i++) {
             abstractionQueues[i] = new HighOrderAbstractionQueue(i, PipelineConfig.TIMEOUTS);
@@ -84,6 +85,12 @@ public class Pipeline {
     private void processAbstraction(Abstraction abstraction, int level) {
         for(FeatureCombinationRule rule : PipelineConfig.FEATURE_COMBINATION_RULES[level]) {
             rule.combine(abstraction);
+        }
+
+        for(FilterRule rule : PipelineConfig.FILTER_RULES[level]) {
+            if(rule.filter(abstraction)) {
+                return;
+            }
         }
 
         if(level >= PipelineConfig.NUM_ABSTRACTION_LEVELS - 1) {
