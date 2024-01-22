@@ -28,8 +28,8 @@ public class Pipeline {
     public Pipeline() throws PcapNativeException, NotOpenException {
         abstractionQueues = new AbstractionQueue[PipelineConfig.NUM_ABSTRACTION_LEVELS];
         // dataSource = new DataBaseSource("localhost", 5432,"ls22", "lab", "lab", "capture");
-        // dataSource = new FileSource("/home/sosi/ls22/2022/BT03-CHE/abstractions/0", "", "150"); // 10.3.8.38 // /home/sosi/ls22/2022/BT03-CHE/abstractions/0 // integration_tests
-        dataSource = new NetworkSource("wlp0s20f3", "");
+        dataSource = new FileSource("/home/sosi/ls22/2022/BT03-CHE/abstractions/0", ""); // 10.3.8.38 // /home/sosi/ls22/2022/BT03-CHE/abstractions/0 // integration_tests
+        // dataSource = new NetworkSource("wlp0s20f3", "");
         abstractionQueues[0] = dataSource;
         for(int i = 1; i < PipelineConfig.NUM_ABSTRACTION_LEVELS; i++) {
             abstractionQueues[i] = new HighOrderAbstractionQueue(i, PipelineConfig.TIMEOUTS);

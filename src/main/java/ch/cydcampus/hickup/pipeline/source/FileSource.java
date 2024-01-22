@@ -21,6 +21,10 @@ public class FileSource extends DataSource {
     private long sizeFilter = 0;
     private File[] processFiles;
 
+    public FileSource(String path, String filterHost) {
+        this(path, filterHost, "");
+    }
+
     public FileSource(String path, String filterHost, String sizeFilter) {
         this.filterHost = filterHost;
         this.doFilter = filterHost != null && !filterHost.equals("") && filterHost.length() > 3;
