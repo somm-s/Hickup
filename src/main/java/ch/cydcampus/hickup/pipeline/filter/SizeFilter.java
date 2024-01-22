@@ -13,7 +13,7 @@ public class SizeFilter implements FilterRule {
 
     @Override
     public boolean filter(Abstraction abstraction) {
-        return abstraction.getFeature(PipelineConfig.BYTES_INDEX).asLong() >= size;
+        return abstraction.getFeature(PipelineConfig.BYTES_INDEX).asLong() <= size;
     }
     
 }

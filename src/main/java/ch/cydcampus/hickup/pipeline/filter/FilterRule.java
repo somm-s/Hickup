@@ -5,7 +5,7 @@ import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
 public interface FilterRule {
     
     /*
-     * Return true if the abstraction should be discarded, true if it should be kept.
+     * Return true if the abstraction should be discarded, false if it should be kept.
      */
     boolean filter(Abstraction abstraction);
 
