@@ -93,7 +93,7 @@ public class Pipeline {
         }
 
         if(level >= PipelineConfig.NUM_ABSTRACTION_LEVELS - 1) {
-            System.out.print(PipelineConfig.BYTE_TOKENIZER.tokenize(abstraction) + " ");
+            System.out.print(PipelineConfig.TOKENIZERS[2][0].tokenize(abstraction) + " ");
             return;
         }
 

@@ -111,6 +111,10 @@ public class PipelineConfig {
         {} // always empty.
     };
 
-    public static final NumericTokenizer BYTE_TOKENIZER = new NumericTokenizer(150, 1000000, true, 0);
 
+    public static final NumericTokenizer[][] TOKENIZERS = {
+        {}, // level 0
+        { new NumericTokenizer(150, 100000, true, 1) }, // level 1
+        { new NumericTokenizer(150, 200000, true, 0) } // level 2
+    };
 }
