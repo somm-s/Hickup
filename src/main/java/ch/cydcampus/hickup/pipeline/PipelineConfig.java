@@ -12,6 +12,7 @@ import ch.cydcampus.hickup.pipeline.filter.FilterRule;
 import ch.cydcampus.hickup.pipeline.filter.SizeFilter;
 import ch.cydcampus.hickup.pipeline.stage.AbstractionRule;
 import ch.cydcampus.hickup.pipeline.stage.MultiplexerRule;
+import ch.cydcampus.hickup.pipeline.tokenizer.NumericTokenizer;
 
 public class PipelineConfig {
     
@@ -109,5 +110,7 @@ public class PipelineConfig {
         {},
         {} // always empty.
     };
+
+    public static final NumericTokenizer BYTE_TOKENIZER = new NumericTokenizer(150, 1000000, true, 0);
 
 }
