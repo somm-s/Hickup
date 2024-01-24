@@ -3,16 +3,40 @@ package ch.cydcampus.hickup.pipeline.stage;
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
 import ch.cydcampus.hickup.pipeline.abstraction.AbstractionFactory;
 
+/**
+ * A stage that is responsible for creating and managing abstractions.
+ */
 public class AbstractionStage {
     
-    private Abstraction activeAbstraction; // abstraction where abstractions are being added to
-    private Abstraction prevChildAbstraction; // abstraction that was added last to the stage
+    private Abstraction activeAbstraction;
+    private Abstraction prevChildAbstraction;
     private AbstractionRule rule;
-    private int level;
 
-    public AbstractionStage(int level, AbstractionRule rule) {
+    /**
+     * Creates a new abstraction stage.
+     * @param rule the rule that defines when a new abstraction belongs to an active abstraction
+     * and when a new active abstraction must be created.
+     */
+    public AbstractionStage(AbstractionRule rule) {
         this.rule = rule;
-        this.level = level;
+    }
+
+    /**
+     * Checks if the abstraction belongs to the active abstraction.
+     * @param abstraction the abstraction to check
+     * @return true if the abstraction belongs to the active abstraction
+     */
+    public boolean applyRule(Abstraction abstraction) {
+        return rule.belongsToActiveAbstraction(abstraction, activeAbstraction, prevChildAbstraction);
+    }
+
+    /**
+     * Creates a new active abstraction.
+     * @param childAbstraction the abstraction that belongs to the active abstraction
+     * @return the new active abstraction
+     */
+    public Abstraction createActiveAbstraction(Abstraction childAbstraction) {
+        return AbstractionFactory.getInstance().createHighOrderAbstraction(childAbstraction);
     }
 
     public Abstraction getActiveAbstraction() {
@@ -30,13 +54,4 @@ public class AbstractionStage {
     public void setPrevChildAbstraction(Abstraction abstraction) {
         this.prevChildAbstraction = abstraction;
     }
-
-    public boolean applyRule(Abstraction abstraction) {
-        return rule.belongsToActiveAbstraction(abstraction, activeAbstraction, prevChildAbstraction);
-    }
-
-    public Abstraction createActiveAbstraction(Abstraction childAbstraction) {
-        return AbstractionFactory.getInstance().createHighOrderAbstraction(childAbstraction); // TODO: check if level or level + 1
-    }
-
 }

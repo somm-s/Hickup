@@ -70,8 +70,8 @@ public class PipelineConfig {
     };
 
     public static final MultiplexerRule[] MULTIPLEXER_RULES = {
-        new MultiplexerRule(0, 7, 7),
-        new MultiplexerRule(1, 0, 8)
+        new MultiplexerRule(7, 7),
+        new MultiplexerRule(0, 8)
     };
 
     public static final FeatureCombinationRule[] MULTIPLEXER_ID_RULES = {

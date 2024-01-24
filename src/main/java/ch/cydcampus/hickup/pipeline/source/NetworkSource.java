@@ -14,11 +14,22 @@ import org.pcap4j.packet.Packet;
 
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
 import ch.cydcampus.hickup.pipeline.abstraction.AbstractionFactory;
+
+/**
+ * Use network interface as source for packets.
+ */
 public class NetworkSource extends DataSource {
 
     private PcapHandle pcapHandle;
     boolean isRunning = true;
 
+    /**
+     * Creates a new network source.
+     * @param networkInterface name of the network interface to use
+     * @param berkleyPacketFilter filter for packets
+     * @throws PcapNativeException
+     * @throws NotOpenException
+     */
     public NetworkSource(String networkInterface, String berkleyPacketFilter) throws PcapNativeException, NotOpenException {
         BpfProgram.BpfCompileMode mode = BpfProgram.BpfCompileMode.OPTIMIZE;
         PcapNetworkInterface device = Pcaps.getDevByName(networkInterface);
@@ -26,7 +37,16 @@ public class NetworkSource extends DataSource {
         pcapHandle.setFilter(berkleyPacketFilter, mode);
     }
 
-    public void capture() {
+    @Override
+    public void start() {
+        // start thread that runs capture
+        Thread t = new Thread(() -> {
+            capture();
+        });
+        t.start();
+    }
+
+    private void capture() {
         try {
             while (isRunning) {
                 Packet packet = pcapHandle.getNextPacketEx();
@@ -40,16 +60,7 @@ public class NetworkSource extends DataSource {
         } finally {
             pcapHandle.close();
         }
-
     }
 
-    @Override
-    public void start() {
-        // start thread that runs capture
-        Thread t = new Thread(() -> {
-            capture();
-        });
-        t.start();
-    }
-    
+
 }

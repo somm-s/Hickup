@@ -14,8 +14,11 @@ import ch.cydcampus.hickup.pipeline.abstraction.PacketAbstraction;
 import ch.cydcampus.hickup.pipeline.feature.Feature.Protocol;
 import ch.cydcampus.hickup.util.TimeInterval;
 
-/*
- * First collect metadata about the query and then divide into chunks of right size.
+/**
+ * Use database as source for packets. It is assumed that all packets reside in
+ * one table. The table must have the following columns (exact names, order irrelevant):
+ * protocol, size, timestamp, src_ip, dst_ip, src_port, dst_port
+ * To stream packets from the database, the table is split into chunks and loaded chunk by chunk.
  */
 public class DataBaseSource extends DataSource {
     
@@ -28,8 +31,6 @@ public class DataBaseSource extends DataSource {
 
     public DataBaseSource(String host, int port, String database, String user, String password, String table) {
         this.url = "jdbc:postgresql://" + host + ":" + port + "/" + database;
-
-        // connect to the database
         try {
             connection = DriverManager.getConnection(url, user, password);
             System.out.println("Connected to the PostgreSQL server successfully.");
@@ -39,7 +40,6 @@ public class DataBaseSource extends DataSource {
 
         this.query = "SELECT * FROM " + table + " WHERE 1 = 1";
         this.querysuffix = " ORDER BY timestamp";
-
         String metadataQuery = "SELECT MIN(timestamp) AS min_time, MAX(timestamp) AS max_time, COUNT(*) AS num_packets, SUM(size) AS total_size FROM " + table + ";";
         long minTime = 0; // in microseconds
         long maxTime = 0; // in microseconds
@@ -67,19 +67,12 @@ public class DataBaseSource extends DataSource {
         System.out.println("Duration (minutes): " + ((maxTime - minTime) / 1000000 / 60));
         System.out.println("Number of packets: " + numPackets);
         System.out.println("Total size: " + (totalSize / 1000000) + " MB");
-
-
-        // compute amount of splits such that each split has around 100000 packets
         int numSplits = (int) Math.ceil((double) numPackets / PACKETS_PER_CHUNK);
         System.out.println("Number of splits: " + numSplits);
-
-        // compute time interval for each split
         long timeInterval = (maxTime - minTime) / numSplits;
         System.out.println("Time interval (s): " + (timeInterval / 1000000));
+        numSplits++; // add one split for the last chunk
 
-        numSplits++; // add one split to get everything for sure
-
-        // compute query addition for each split
         queryAdditions = new String[numSplits];
         for(int i = 0; i < numSplits; i++) {
             long start = minTime + i * timeInterval;
@@ -89,10 +82,8 @@ public class DataBaseSource extends DataSource {
     }
 
     private void getPointsFromSQL() {
-
         int i = 0;
         while(i < queryAdditions.length) {
-
             if(this.queueLimitReached()) {
                 try {
                     Thread.sleep(1000);
@@ -101,7 +92,6 @@ public class DataBaseSource extends DataSource {
                 }
                 continue;
             }
-
             String query = this.query + this.queryAdditions[i++] + this.querysuffix;
             System.out.println(query);
             try {
@@ -123,7 +113,6 @@ public class DataBaseSource extends DataSource {
         InetAddress dstAddr = InetAddress.getByName(dstIp);
         int srcPort = resultSet.getInt("src_port");
         int dstPort = resultSet.getInt("dst_port");
-        
         return AbstractionFactory.getInstance().allocateFromFields(srcAddr, dstAddr, srcPort, dstPort, protocol, packetSize, TimeInterval.timeToMicro(time));
     }
 
@@ -145,5 +134,4 @@ public class DataBaseSource extends DataSource {
             getPointsFromSQL();
         }).start();
     }
-
 }
