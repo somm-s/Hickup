@@ -15,6 +15,7 @@ import ch.cydcampus.hickup.pipeline.source.DataSource;
 import ch.cydcampus.hickup.pipeline.source.FileSource;
 import ch.cydcampus.hickup.pipeline.stage.AbstractionStage;
 import ch.cydcampus.hickup.pipeline.stage.MultiplexerStage;
+import ch.cydcampus.hickup.pipeline.tokenizer.Tokenizer;
 
 /**
  * The Pipeline class is responsible to construct a pipeline according to the configuration and run it.
@@ -99,7 +100,7 @@ public class Pipeline {
                 return;
             }
         }
-        if(level >= PipelineConfig.NUM_ABSTRACTION_LEVELS - 1) {
+        if(level == PipelineConfig.TOKENIZATION_LAYER) {
             outputTokenStream(abstraction);
             return;
         }
@@ -122,7 +123,10 @@ public class Pipeline {
     }
 
     private void outputTokenStream(Abstraction abstraction) {
-        System.out.print(PipelineConfig.TOKENIZERS[2][0].tokenize(abstraction) + " ");
+        for(Tokenizer tokenizer : PipelineConfig.TOKENIZERS[PipelineConfig.TOKENIZATION_LAYER]) {
+            System.out.print(tokenizer.tokenize(abstraction));
+        }
+        System.out.print(" ");
     }
 
     public static void main(String[] args) throws PcapNativeException, NotOpenException {

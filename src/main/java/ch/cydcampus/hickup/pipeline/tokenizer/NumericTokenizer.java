@@ -6,7 +6,7 @@ import ch.cydcampus.hickup.pipeline.feature.Feature;
 /**
  * Numeric Tokenizer Class used to map a number feature to a character.
  */
-public class NumericTokenizer {
+public class NumericTokenizer implements Tokenizer {
 
     public static final String CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -29,11 +29,7 @@ public class NumericTokenizer {
         this.idx = idx;
     }
 
-    /**
-     * Tokenizes the feature at the defined index of the abstraction.
-     * @param abstraction
-     * @return the character that the feature is mapped to
-     */
+    @Override
     public char tokenize(Abstraction abstraction) {
         Feature feature = abstraction.getFeature(idx);
         switch(feature.getType()) {

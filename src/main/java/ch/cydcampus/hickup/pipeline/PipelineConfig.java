@@ -18,6 +18,7 @@ public class PipelineConfig {
     
     public static final int NUM_ABSTRACTION_LEVELS = 3;
     public static final int MAX_ABSTRACTION_LEVEL = NUM_ABSTRACTION_LEVELS - 1;
+    public static final int TOKENIZATION_LAYER = 1;
     public static final long[] TIMEOUTS = { 0, 30000, 1000000 };
     public static final int SRC_IP_INDEX = 0;
     public static final int DST_IP_INDEX = 1;
@@ -73,7 +74,7 @@ public class PipelineConfig {
     };
     public static final NumericTokenizer[][] TOKENIZERS = {
         {}, // level 0
-        { new NumericTokenizer(150, 100000, true, 1) }, // level 1
-        { new NumericTokenizer(150, 200000, true, 0) } // level 2
+        { new NumericTokenizer(1000, 80000, false, 1) }, // level 1
+        { new NumericTokenizer(10000, 20000000, true, 0) } // level 2
     };
 }

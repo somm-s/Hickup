@@ -69,35 +69,24 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
         File folder = new File(pcapFolderPath);
         System.out.println(folder.listFiles());
         File[] listOfFiles = folder.listFiles();
-
         java.util.Arrays.sort(listOfFiles);
-
         RecursivePcapConversionTask task = new RecursivePcapConversionTask(outputPath, filter, listOfFiles, 0, listOfFiles.length);
-
         forkJoinPool.invoke(task);
         forkJoinPool.shutdown();
-
-        // delete empty folders
         File[] outputFolders = new File(outputPath).listFiles();
         for(File outputFolder : outputFolders) {
             if(outputFolder.isDirectory() && outputFolder.listFiles().length == 0) {
                 outputFolder.delete();
             }
         }
-
-        // list all files in output path
         File[] outputFiles = new File(outputPath).listFiles();
         File[] oldFiles = outputFiles[0].listFiles();
         FolderCompressor.compressFolder(outputFiles[0].getAbsolutePath());
-
-        // delete uncompressed files
         for(File outputFile : oldFiles) {
             if(outputFile.isFile()) {
                 outputFile.delete();
             }
         }
-
-        // build index
         FileIndexer indexer = new FileIndexer(outputFiles[0].getAbsolutePath());
         indexer.index();
     }
@@ -113,20 +102,15 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
     }
 
     private void map() {
-
         int pcapIndex = this.start;
         System.out.println("Worker " + Thread.currentThread().getId() + " processing " + pcapFiles[pcapIndex].getName());
-
         String pcapFilePath = pcapFiles[pcapIndex].getAbsolutePath();
-
         if(!hasAllowedEnding(pcapFiles[pcapIndex], new String[] {"pcap", "pcap.gz"})) {
             System.out.println("File " + pcapFiles[pcapIndex].getName() + " has wrong file ending, skipping...");
             return;
         }
-
         File pcapOutputDirectory = new File(combinePaths(outputPath, Integer.toString(pcapIndex)));
         pcapOutputDirectory.mkdirs();
-
         if(pcapFiles[pcapIndex].getName().endsWith(".pcap.gz")) {
             String tempFilePath = combinePaths(pcapOutputDirectory.getAbsolutePath(), "temp.pcap");
             try {
@@ -137,10 +121,7 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
             }
             pcapFilePath = tempFilePath;
         }
-
-        // Open the pcap file
         PcapHandle handle;
-
         try {
             handle = Pcaps.openOffline(pcapFilePath, TimestampPrecision.MICRO);
             // add filter
@@ -149,13 +130,9 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
             System.out.println("Couldn't open pcap file: " + pcapFilePath + ", skipping...");
             return;
         }
-        
-        // create a packet listener
         PacketListener pl = new PacketListener() {
             @Override
             public void gotPacket(Packet packet) {
-
-                // parse packet to IPPoint
                 PacketAbstraction abstraction = null;
                 try {
                     abstraction = AbstractionFactory.getInstance().allocateFromNetwork(packet, handle.getTimestamp());
@@ -171,8 +148,6 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
                 int colonIndex = timeString.indexOf(':');
                 String outFileName = timeString.substring(0, colonIndex + 3) + ".csv";
                 File outFile = new File(Paths.get(pcapOutputDirectory.getAbsolutePath()).resolve(outFileName).toString());
-
-                // check if file exists, create new filewriter and close previous one if not null
                 try {
                     if(!outFile.exists()) {
                         if(writer != null) {
@@ -181,7 +156,6 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
                         }
                         writer = new BufferedWriter(new FileWriter(outFile, true));
                     }
-
                     writer.write(abstraction.serializeString() + "\n");
                 } catch (IOException e) {
                     System.out.println("Couldn't write point to: " + outFile.getAbsolutePath());
@@ -189,19 +163,13 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
                 }
             }
         };
-
-        // loop over all packets in the pcap file
         try {
             handle.loop(-1, pl);
         } catch (PcapNativeException | InterruptedException | NotOpenException e) {
             System.out.println("Couldn't loop over pcap file: " + pcapFilePath);
             e.printStackTrace();
         }
-
-        // Close the handle
         handle.close();
-
-        // close writer if not null
         if(writer != null) {
             try {
                 writer.flush();
@@ -210,41 +178,30 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
                 e.printStackTrace();
             }
         }
-
-        // delete the temporary file
         File file = new File(pcapFilePath);
         file.delete();
-
         System.out.println("Worker " + Thread.currentThread().getId() + " Finished " + pcapFiles[start].getName());
-
     }
 
     private void reduce() {
-
         int mid = (start + end) / 2;
         RecursivePcapConversionTask leftTask = new RecursivePcapConversionTask(outputPath, filter, pcapFiles, start, mid);
         RecursivePcapConversionTask rightTask = new RecursivePcapConversionTask(outputPath, filter, pcapFiles, mid, end);
-        
         leftTask.fork();
         rightTask.fork();
         leftTask.join();
         rightTask.join();
-
         System.out.println("Worker " + Thread.currentThread().getId() + " Combining files " + start + " and " + mid);
-
         // the results will be in start and mid, respectively. 
         File firstDirectory = new File(Paths.get(outputPath).resolve(Integer.toString(start)).toString());
         File secondDirectory = new File(Paths.get(outputPath).resolve(Integer.toString(mid)).toString());
-
         // Start by identifying conflicting files.
         File[] firstFiles = firstDirectory.listFiles();
         File[] secondFiles = secondDirectory.listFiles();
-
         List<File> conflictingFiles = new ArrayList<>();
         if(firstFiles != null && secondFiles != null) {
             java.util.Arrays.sort(firstFiles);
             java.util.Arrays.sort(secondFiles);
-    
             int i = 0; int j = 0;
             while(i < firstFiles.length && j < secondFiles.length) {
                 String a = firstFiles[i].getName();
@@ -259,36 +216,26 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
                 }
             }
         }
-
-
         // conflicting files are opened simultaneously and iterated over at the same time (merge)
         for(File conflictFile : conflictingFiles) {
             // open writer to write into start folder:
             File newFilePath = new File(Paths.get(firstDirectory.getAbsolutePath()).resolve("resolved " + conflictFile.getName()).toString());
             try {
                 BufferedWriter combineWriter = new BufferedWriter(new FileWriter(newFilePath));
-
-                // file 1
                 File file1 = new File(Paths.get(firstDirectory.getAbsolutePath()).resolve(conflictFile.getName()).toString());
                 BufferedReader reader1 = new BufferedReader(new FileReader(file1));
-                
-                // file 2
                 File file2 = new File(Paths.get(secondDirectory.getAbsolutePath()).resolve(conflictFile.getName()).toString());
                 BufferedReader reader2 = new BufferedReader(new FileReader(file2));
-
                 TimeString[] lines1 = reader1.lines()
                         .map(TimeString::new)
                         .toArray(TimeString[]::new);
-                
                 TimeString[] lines2 = reader2.lines()
                         .map(TimeString::new)
                         .toArray(TimeString[]::new);
-
                 System.out.println("started sorting " + conflictFile.getName() + " with " + lines1.length + " and " + lines2.length);
                 Arrays.sort(lines1);
                 Arrays.sort(lines2);
                 System.out.println("finished sorting " + conflictFile.getName());
-
                 int i = 0;
                 int j = 0;
                 while(i < lines1.length && j < lines2.length) {
@@ -302,7 +249,6 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
                         j++;
                     }
                 }
-
                 combineWriter.flush();
                 combineWriter.close();
                 reader1.close();
@@ -313,7 +259,6 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
                 return;
             }
         }
-        
         // non-conflicting files are simply moved to the start directory
         for(File secondFile : secondFiles) {
             try {
@@ -324,7 +269,6 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
                 System.out.println("coudn't replace " + secondFile.getAbsolutePath());
             }
         }
-
         // conflict files are moved to the directory, also replacing:
         for(File conflictFile : conflictingFiles) {
             try {
@@ -335,9 +279,7 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
                 System.out.println("coudn't replace resolved to " + conflictFile.getAbsolutePath());
             }
         }
-
         System.out.println("Worker " + Thread.currentThread().getId() + " Finished Combining " + start + " and " + mid);
-
         return;
     }
 
@@ -348,11 +290,9 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
 
     private boolean hasFileEnding(File file, String ending) {
         String fileName = file.getName();
-
         if(fileName.length() < ending.length()) {
             return false;
         }
-
         String lastPart = fileName.substring(fileName.length() - ending.length() - 1, fileName.length());
         return lastPart.equals("." + ending);
     }
@@ -391,16 +331,21 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
         }
     }
 
-
     public static void main(String[] args) throws IOException {
-        // String pcapFolderPath = "/home/lab/Documents/networking/hickup-net/pcaps_diverse";
-        // String outputPath = "/home/lab/Documents/networking/hickup-net/output";
-        String pcapFolderPath = "/home/sosi/ls22/2022/BT03-CHE/pcaps";
-        String outputPath = "/home/sosi/ls22/2022/BT03-CHE/abstractions";
-
-        String filter = "ip";
-
-        convertPcaps(pcapFolderPath, outputPath, filter, 16);
+        if(args.length < 2) {
+            System.out.println("Usage: java -jar pcap-converter.jar <pcapFolderPath> <outputPath> [filter]");
+            return;
+        }
+        String pcapFolderPath = args[0];
+        String outputPath = args[1];
+        String filter = "";
+        if(args.length > 2) {
+            filter = args[2];
+        }
+        int numThreads = Runtime.getRuntime().availableProcessors();
+        if(args.length > 3) {
+            numThreads = Integer.parseInt(args[3]);
+        }
+        convertPcaps(pcapFolderPath, outputPath, filter, numThreads);
     }
-
 }

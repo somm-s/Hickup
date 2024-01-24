@@ -7,8 +7,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 
-/*
- * Represents a microsecond precision time interval and provides methods for conversion. Thread safe.
+/**
+ * Represents a microsecond precision time interval and provides methods for conversion.
  */
 public class TimeInterval implements Comparable<TimeInterval> {
 
@@ -17,9 +17,8 @@ public class TimeInterval implements Comparable<TimeInterval> {
         .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 6, true) // Append microseconds with 0-6 digits
         .toFormatter()
         .withZone(ZoneId.of("UTC"));
-
-    private volatile long start;
-    private volatile long end;
+    private long start;
+    private long end;
 
     public static long timeToMicro(Timestamp timestamp) {
         return timestamp.getTime() * 1000 + (timestamp.getNanos() / 1000) % 1000;
@@ -80,7 +79,6 @@ public class TimeInterval implements Comparable<TimeInterval> {
         if(start == -1 || end == -1 || other.getStart() == -1 || other.getEnd() == -1) {
             return false;
         }
-
         return !(start > other.getEnd() || end < other.getStart());
     }
 
@@ -90,10 +88,8 @@ public class TimeInterval implements Comparable<TimeInterval> {
         } else if(timeInterval.getStart() == -1 || timeInterval.getEnd() == -1) {
             return new TimeInterval(this);
         }
-
         long newStart = Math.min(start, timeInterval.getStart());
         long newEnd = Math.max(end, timeInterval.getEnd());
-
         return new TimeInterval(newStart, newEnd);
     }
 
@@ -102,15 +98,13 @@ public class TimeInterval implements Comparable<TimeInterval> {
             setContentTo(other);
             return;
         }
-
         long newStart = Math.min(start, other.getStart());
         long newEnd = Math.max(end, other.getEnd());
-
         this.start = newStart < 0 ? this.start : newStart;
         this.end = newEnd < 0 ? this.end : newEnd;
     }
 
-    /*
+    /**
      * Returns the time in the gap between this time interval and the other 
      * time interval in microseconds. Return 0 if the time intervals overlap.
      */
@@ -150,7 +144,6 @@ public class TimeInterval implements Comparable<TimeInterval> {
     }
 
     public String toString() {
-        // transform microseconds to timestamp
         Instant startInstant = microToInstant(start);
         Instant endInstant = microToInstant(end);
         Timestamp startTimestamp = Timestamp.from(startInstant);
@@ -160,23 +153,14 @@ public class TimeInterval implements Comparable<TimeInterval> {
 
 
     private Timestamp timeFromString(String timeString) {
-        // Parse the string to Instant
         Instant instant = Instant.from(timeFormatter.parse(timeString));
-
-
-        // Convert Instant to Timestamp
         java.sql.Timestamp timestamp = java.sql.Timestamp.from(instant);
-
         return timestamp;
     }
 
     public String timeToString(Timestamp timestamp) {
-        // Convert Timestamp to Instant
         Instant instant = timestamp.toInstant();
-
-        // Format Instant to String
         String timeString = timeFormatter.format(instant);
-
         return timeString;
     }
 
