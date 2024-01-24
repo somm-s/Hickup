@@ -1,7 +1,11 @@
 package ch.cydcampus.hickup.pipeline.tokenizer;
 
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
+import ch.cydcampus.hickup.pipeline.feature.Feature;
 
+/**
+ * Numeric Tokenizer Class used to map a number feature to a character.
+ */
 public class NumericTokenizer {
 
     public static final String CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -11,11 +15,39 @@ public class NumericTokenizer {
     private boolean useLogScale;
     private int idx;
 
+    /*
+     * Creates a new NumericTokenizer.
+     * @param min the minimum value of the feature that is mapped to the first character
+     * @param max the maximum value of the feature that is mapped to the last character
+     * @param useLogScale whether to use a logarithmic scale (apply logarithm to values before mapping to characters)
+     * @param idx the index of the feature in the abstraction
+     */
     public NumericTokenizer(double min, double max, boolean useLogScale, int idx) {
         this.min = min;
         this.max = max;
         this.useLogScale = useLogScale;
         this.idx = idx;
+    }
+
+    /**
+     * Tokenizes the feature at the defined index of the abstraction.
+     * @param abstraction
+     * @return the character that the feature is mapped to
+     */
+    public char tokenize(Abstraction abstraction) {
+        Feature feature = abstraction.getFeature(idx);
+        switch(feature.getType()) {
+            case INT:
+                return tokenize(abstraction.getFeature(idx).asInt());
+            case DOUBLE:
+                return tokenize(abstraction.getFeature(idx).asDouble());
+            case LONG:
+                return tokenize(abstraction.getFeature(idx).asLong());
+            case SHORT:
+                return tokenize(abstraction.getFeature(idx).asShort());
+            default:
+                throw new IllegalArgumentException("Feature type not supported");
+        }
     }
 
     private char tokenize(double value) {
@@ -33,9 +65,4 @@ public class NumericTokenizer {
             return token;
         }
     }
-
-    public char tokenize(Abstraction abstraction) {
-        return tokenize(abstraction.getFeature(idx).asLong());
-    }
-
 }

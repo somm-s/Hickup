@@ -13,10 +13,13 @@ import ch.cydcampus.hickup.pipeline.feature.differentialrules.FeatureDifferentia
 import ch.cydcampus.hickup.pipeline.filter.FilterRule;
 import ch.cydcampus.hickup.pipeline.source.DataSource;
 import ch.cydcampus.hickup.pipeline.source.FileSource;
-import ch.cydcampus.hickup.pipeline.source.NetworkSource;
 import ch.cydcampus.hickup.pipeline.stage.AbstractionStage;
 import ch.cydcampus.hickup.pipeline.stage.MultiplexerStage;
 
+/**
+ * The Pipeline class is responsible to construct a pipeline according to the configuration and run it.
+ * The pipeline consists of a data source, abstraction queues, multiplexer stages and feature rules.
+ */
 public class Pipeline {
 
     private AbstractionQueue[] abstractionQueues;
@@ -25,11 +28,16 @@ public class Pipeline {
     private MultiplexerStage[] multiplexerStages;
     private boolean finished;
 
+    /**
+     * Constructs a new pipeline according to the configuration.
+     * @throws PcapNativeException
+     * @throws NotOpenException
+     */
     public Pipeline() throws PcapNativeException, NotOpenException {
         abstractionQueues = new AbstractionQueue[PipelineConfig.NUM_ABSTRACTION_LEVELS];
         // dataSource = new DataBaseSource("localhost", 5432,"ls22", "lab", "lab", "capture");
-        // dataSource = new FileSource("integration_tests", ""); // 10.3.8.38 // /home/sosi/ls22/2022/BT03-CHE/abstractions/0 // integration_tests
-        dataSource = new NetworkSource("wlp0s20f3", "");
+        dataSource = new FileSource("integration_tests", ""); // 10.3.8.38 // /home/sosi/ls22/2022/BT03-CHE/abstractions/0 // integration_tests
+        // dataSource = new NetworkSource("wlp0s20f3", "");
         abstractionQueues[0] = dataSource;
         for(int i = 1; i < PipelineConfig.NUM_ABSTRACTION_LEVELS; i++) {
             abstractionQueues[i] = new HighOrderAbstractionQueue(i, PipelineConfig.TIMEOUTS);
@@ -42,18 +50,19 @@ public class Pipeline {
         this.logicClock = 0;
     }
 
-    public void run() {
-
+    /**
+     * Runs the pipeline until the data source is finished and all abstractions are processed.
+     */
+    public void runPipeline() {
         dataSource.start();
         int idx = 0;
-        while(!finished || idx != 0) { // main loop. TODO: Exit condition.
+        while(!finished || idx != 0) {
             Abstraction abstraction = abstractionQueues[idx].getFirstAbstraction(logicClock);
             if(abstraction == null) {
                 idx = (idx + 1) % PipelineConfig.NUM_ABSTRACTION_LEVELS;
                 continue;
             } else if(idx == 0) {
                 if(abstraction == PacketAbstraction.FINISH_PACKET) {
-                    // System.out.println("Finish abstraction received");
                     finished = true;
                     idx = idx + 1;
                     logicClock = Long.MAX_VALUE;
@@ -63,7 +72,7 @@ public class Pipeline {
                     updateAbstractions(abstraction);    
                 }
             }
-            abstraction.seal(); // Cannot add children or update time anymore
+            abstraction.seal();
             processAbstraction(abstraction, idx);
         }
     }
@@ -72,7 +81,6 @@ public class Pipeline {
         for(FeatureCombinationRule rule : PipelineConfig.MULTIPLEXER_ID_RULES) {
             rule.combine(packetAbstraction);
         }
-
         for(int i = 1; i < multiplexerStages.length; i++) { // Note: can skip level 0 since packets are directly added to it
             AbstractionStage stage = multiplexerStages[i].getAbstractionStage(packetAbstraction);
             Abstraction activeAbstraction = stage.getActiveAbstraction();
@@ -91,36 +99,34 @@ public class Pipeline {
                 return;
             }
         }
-
         if(level >= PipelineConfig.NUM_ABSTRACTION_LEVELS - 1) {
-            System.out.print(PipelineConfig.TOKENIZERS[2][0].tokenize(abstraction) + " ");
+            outputTokenStream(abstraction);
             return;
         }
-
         AbstractionStage abstractionStage = multiplexerStages[level].getAbstractionStage(abstraction);
         Abstraction activeAbstraction = abstractionStage.getActiveAbstraction();
         Abstraction prevAbstraction = abstractionStage.getPrevChildAbstraction();
-
         for(FeatureDifferentialRule rule : PipelineConfig.FEATURE_DIFFERENTIAL_RULES[level]) {
             rule.differential(prevAbstraction, abstraction);
         }
-
         if(activeAbstraction == null || !abstractionStage.applyRule(abstraction) || activeAbstraction.isSealed()) {
             activeAbstraction = abstractionStage.createActiveAbstraction(abstraction);
             abstractionQueues[level + 1].addAbstraction(activeAbstraction);
         }
-
         for(FeatureAggregationRule rule : PipelineConfig.FEATURE_AGGREGATION_RULES[level]) {
             rule.aggregate(activeAbstraction, abstraction);
         }
-
         activeAbstraction.addChild(abstraction);
         abstractionStage.setPrevChildAbstraction(abstraction);
         abstractionStage.setActiveAbstraction(activeAbstraction);
     }
 
+    private void outputTokenStream(Abstraction abstraction) {
+        System.out.print(PipelineConfig.TOKENIZERS[2][0].tokenize(abstraction) + " ");
+    }
+
     public static void main(String[] args) throws PcapNativeException, NotOpenException {
         Pipeline pipeline = new Pipeline();
-        pipeline.run();
+        pipeline.runPipeline();
     }
 }
