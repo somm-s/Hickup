@@ -15,13 +15,18 @@ import ch.cydcampus.hickup.pipeline.feature.Feature;
 import ch.cydcampus.hickup.pipeline.feature.FeatureFactory;
 import ch.cydcampus.hickup.util.TimeInterval;
 
+/**
+ * This class provides a factory for creating abstractions.
+ */
 public class AbstractionFactory {
 
     private static AbstractionFactory instance = null;
+    private AbstractionFactory() {}
 
-    private AbstractionFactory() {
-    }
-
+    /**
+     * Get the singleton instance of the abstraction factory.
+     * @return The singleton instance of the abstraction factory.
+     */
     public static AbstractionFactory getInstance() {
         if(instance == null) {
             instance = new AbstractionFactory();
@@ -29,14 +34,18 @@ public class AbstractionFactory {
         return instance;
     }
 
-    /* Level is the level of the abstraction that is added, i.e. of the lower level abstraction */
-    public Abstraction createHighOrderAbstraction(int level, Abstraction lowerAbstraction) {
-        assert level == lowerAbstraction.getLevel() + 1;
-        assert level > 0;
+    /**
+     * Create a new HighOrderAbstraction from a lower order abstraction. The lower level abstraction specifies the
+     * level of the new abstraction. Furthermore, the level specifies which features are copied from the lower level
+     * by the feature copy rules.
+     * @param lowerAbstraction
+     * @return The new abstraction.
+     */
+    public Abstraction createHighOrderAbstraction(Abstraction lowerAbstraction) {
+        int level = lowerAbstraction.getLevel() + 1;
         HighOrderAbstraction highOrderAbstraction = new HighOrderAbstraction(level);
         Feature[] features = new Feature[PipelineConfig.FEATURE_NAMES[level].length];
 
-        // initialize all
         for(int i = 0; i < PipelineConfig.FEATURE_NAMES[level].length; i++) {
             features[i] = FeatureFactory.createFeature(PipelineConfig.FEATURE_TYPES[level][i], null, PipelineConfig.FEATURE_NAMES[level][i]);
         }
@@ -45,20 +54,19 @@ public class AbstractionFactory {
         for(FeatureCopyRule rule : PipelineConfig.FEATURE_COPY_RULES[level]) {
             rule.copy(lowerAbstraction, highOrderAbstraction);
         }
-
         return highOrderAbstraction;
     }
 
-    /*
-     * Allocate a sequential token and populate it with the data from the network packet.
-     * 
-     * @param packet The packet to allocate the token from. Returns null if the packet does not contain an IP packet.
+    /**
+     * Allocate a packet abstraction and populate the features array with the correct values. It uses a network packet to
+     * extract the values for the features. The timestamp is used to set the update times.
+     * @param networkPacket pcap4j packet to allocate the token from. Returns null if the packet does not contain an IP packet.
+     * @param timestamp Timestamp of the packet.
      */
     public PacketAbstraction allocateFromNetwork(org.pcap4j.packet.Packet networkPacket, Timestamp timestamp) throws UnknownHostException {
         if(!networkPacket.contains(IpPacket.class)) {
             return null;
         }
-
         InetAddress srcAddr = networkPacket.get(IpPacket.class).getHeader().getSrcAddr();
         InetAddress dstAddr  = networkPacket.get(IpPacket.class).getHeader().getDstAddr();
         Protocol protocol = Protocol.ANY;
@@ -87,18 +95,36 @@ public class AbstractionFactory {
         return allocateFromFields(srcAddr, dstAddr, srcPort, dstPort, protocol, bytes, time);
     }
 
+    /**
+     * Allocate a packet abstraction and populate the features array with the correct values. Additional features that are extracted
+     * in the pipeline for this level are added and initialized with null.
+     * @param srcAddr Source IP address.
+     * @param dstAddr Destination IP address.
+     * @param srcPort Source port.
+     * @param dstPort Destination port.
+     * @param protocol Protocol.
+     * @param bytes Number of bytes.
+     * @param time Timestamp.
+     */
     public PacketAbstraction allocateFromFields(InetAddress srcAddr, InetAddress dstAddr, int srcPort, int dstPort, Protocol protocol, long bytes, long time) throws UnknownHostException {
         Feature[] features = new Feature[PipelineConfig.LEVEL_0_FEATURES.length];
 
-        features[PipelineConfig.SRC_IP_INDEX] = FeatureFactory.createFeature(PipelineConfig.LEVEL_0_FEATURE_TYPES[0], srcAddr, PipelineConfig.LEVEL_0_FEATURES[0]);
-        features[PipelineConfig.DST_IP_INDEX] = FeatureFactory.createFeature(PipelineConfig.LEVEL_0_FEATURE_TYPES[1], dstAddr, PipelineConfig.LEVEL_0_FEATURES[1]);
-        features[PipelineConfig.SRC_PORT_INDEX] = FeatureFactory.createFeature(PipelineConfig.LEVEL_0_FEATURE_TYPES[2], srcPort, PipelineConfig.LEVEL_0_FEATURES[2]);
-        features[PipelineConfig.DST_PORT_INDEX] = FeatureFactory.createFeature(PipelineConfig.LEVEL_0_FEATURE_TYPES[3], dstPort, PipelineConfig.LEVEL_0_FEATURES[3]);
-        features[PipelineConfig.PROTOCOL_INDEX] = FeatureFactory.createFeature(PipelineConfig.LEVEL_0_FEATURE_TYPES[4], protocol, PipelineConfig.LEVEL_0_FEATURES[4]);
-        features[PipelineConfig.BYTES_INDEX] = FeatureFactory.createFeature(PipelineConfig.LEVEL_0_FEATURE_TYPES[5], bytes, PipelineConfig.LEVEL_0_FEATURES[5]);
-        features[PipelineConfig.TIME_INDEX] = FeatureFactory.createFeature(PipelineConfig.LEVEL_0_FEATURE_TYPES[6], time, PipelineConfig.LEVEL_0_FEATURES[6]);
+        features[PipelineConfig.SRC_IP_INDEX] = FeatureFactory.createFeature(
+            PipelineConfig.LEVEL_0_FEATURE_TYPES[PipelineConfig.SRC_IP_INDEX], srcAddr, PipelineConfig.LEVEL_0_FEATURES[PipelineConfig.SRC_IP_INDEX]);
+        features[PipelineConfig.DST_IP_INDEX] = FeatureFactory.createFeature(
+            PipelineConfig.LEVEL_0_FEATURE_TYPES[PipelineConfig.DST_IP_INDEX], dstAddr, PipelineConfig.LEVEL_0_FEATURES[PipelineConfig.DST_IP_INDEX]);
+        features[PipelineConfig.SRC_PORT_INDEX] = FeatureFactory.createFeature(
+            PipelineConfig.LEVEL_0_FEATURE_TYPES[PipelineConfig.SRC_PORT_INDEX], srcPort, PipelineConfig.LEVEL_0_FEATURES[PipelineConfig.SRC_PORT_INDEX]);
+        features[PipelineConfig.DST_PORT_INDEX] = FeatureFactory.createFeature(
+            PipelineConfig.LEVEL_0_FEATURE_TYPES[PipelineConfig.DST_PORT_INDEX], dstPort, PipelineConfig.LEVEL_0_FEATURES[PipelineConfig.DST_PORT_INDEX]);
+        features[PipelineConfig.PROTOCOL_INDEX] = FeatureFactory.createFeature(
+            PipelineConfig.LEVEL_0_FEATURE_TYPES[PipelineConfig.PROTOCOL_INDEX], protocol, PipelineConfig.LEVEL_0_FEATURES[PipelineConfig.PROTOCOL_INDEX]);
+        features[PipelineConfig.BYTES_INDEX] = FeatureFactory.createFeature(
+            PipelineConfig.LEVEL_0_FEATURE_TYPES[PipelineConfig.BYTES_INDEX], bytes, PipelineConfig.LEVEL_0_FEATURES[PipelineConfig.BYTES_INDEX]);
+        features[PipelineConfig.TIME_INDEX] = FeatureFactory.createFeature(
+            PipelineConfig.LEVEL_0_FEATURE_TYPES[PipelineConfig.TIME_INDEX], time, PipelineConfig.LEVEL_0_FEATURES[PipelineConfig.TIME_INDEX]);
 
-        // Add the rest of the features
+        // Add the remaining features with their statically known types and names.
         for(int i = 7; i < PipelineConfig.LEVEL_0_FEATURES.length; i++) {
             features[i] = FeatureFactory.createFeature(PipelineConfig.LEVEL_0_FEATURE_TYPES[i], null, PipelineConfig.LEVEL_0_FEATURES[i]);
         }
@@ -106,7 +132,5 @@ public class AbstractionFactory {
         PacketAbstraction packetAbstraction = new PacketAbstraction();
         packetAbstraction.addFeatures(features);
         return packetAbstraction;
-
     }
-
 }

@@ -2,6 +2,9 @@ package ch.cydcampus.hickup.pipeline.feature;
 
 import java.net.InetAddress;
 
+/**
+ * IPFeature is a feature that stores an IP address.
+ */
 public class IPFeature implements Feature {
 
     InetAddress value;
@@ -43,138 +46,6 @@ public class IPFeature implements Feature {
     }
 
     @Override
-    public Protocol asProtocol() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asProtocol'");
-    }
-
-    @Override
-    public void set(Protocol value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
-    public int asInt() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asInt'");
-    }
-
-    @Override
-    public void set(int value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
-    public String asString() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asString'");
-    }
-
-    @Override
-    public void set(String value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
-    public boolean asBoolean() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asBoolean'");
-    }
-
-    @Override
-    public void set(boolean value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
-    public double asDouble() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asDouble'");
-    }
-
-    @Override
-    public void set(double value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
-    public float asFloat() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asFloat'");
-    }
-
-    @Override
-    public void set(float value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
-    public long asLong() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asLong'");
-    }
-
-    @Override
-    public void set(long value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
-    public short asShort() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asShort'");
-    }
-
-    @Override
-    public void set(short value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
-    public byte asByte() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asByte'");
-    }
-
-    @Override
-    public void set(byte value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
-    public char asChar() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asChar'");
-    }
-
-    @Override
-    public void set(char value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
-    public Object asObject() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asObject'");
-    }
-
-    @Override
-    public void set(Object value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
     public void cloneTo(Feature otherFeature) {
         otherFeature.set(value);
     }
@@ -184,4 +55,114 @@ public class IPFeature implements Feature {
         return value.equals(otherFeature.asIP());
     }
     
+    @Override
+    public String asString() {
+        throw new RuntimeException("Type mismatch: IPFeature.asString()");
+    }
+
+    @Override
+    public void set(String value) {
+        throw new RuntimeException("Type mismatch: IPFeature.set(String)");
+    }
+    
+    @Override
+    public boolean asBoolean() {
+        throw new RuntimeException("Type mismatch: IPFeature.asBoolean()");
+    }
+
+    @Override
+    public void set(boolean value) {
+        throw new RuntimeException("Type mismatch: IPFeature.set(boolean)");
+    }
+
+    @Override
+    public double asDouble() {
+        throw new RuntimeException("Type mismatch: IPFeature.asDouble()");
+    }
+
+    @Override
+    public void set(double value) {
+        throw new RuntimeException("Type mismatch: IPFeature.set(double)");
+    }
+
+    @Override
+    public float asFloat() {
+        throw new RuntimeException("Type mismatch: IPFeature.asFloat()");
+    }
+
+    @Override
+    public void set(float value) {
+        throw new RuntimeException("Type mismatch: IPFeature.set(float)");
+    }
+    
+    @Override
+    public int asInt() {
+        throw new RuntimeException("Type mismatch: IPFeature.asInt()");
+    }
+
+    @Override
+    public void set(int value) {
+        throw new RuntimeException("Type mismatch: IPFeature.set(int)");
+    }
+
+    @Override
+    public long asLong() {
+        throw new RuntimeException("Type mismatch: IPFeature.asLong()");
+    }
+
+    @Override
+    public void set(long value) {
+        throw new RuntimeException("Type mismatch: IPFeature.set(long)");
+    }
+
+    @Override
+    public short asShort() {
+        throw new RuntimeException("Type mismatch: IPFeature.asShort()");
+    }
+
+    @Override
+    public void set(short value) {
+        throw new RuntimeException("Type mismatch: IPFeature.set(short)");
+    }
+
+    @Override
+    public byte asByte() {
+        throw new RuntimeException("Type mismatch: IPFeature.asByte()");
+    }
+
+    @Override
+    public void set(byte value) {
+        throw new RuntimeException("Type mismatch: IPFeature.set(byte)");
+    }
+
+    @Override
+    public char asChar() {
+        throw new RuntimeException("Type mismatch: IPFeature.asChar()");
+    }
+
+    @Override
+    public void set(char value) {
+        throw new RuntimeException("Type mismatch: IPFeature.set(char)");
+    }
+
+    @Override
+    public Object asObject() {
+        throw new RuntimeException("Type mismatch: IPFeature.asObject()");
+    }
+
+    @Override
+    public void set(Object value) {
+        throw new RuntimeException("Type mismatch: IPFeature.set(Object)");
+    }
+
+    @Override
+    public void set(Protocol value) {
+        throw new RuntimeException("Type mismatch: IPFeature.set(Protocol)");
+    }
+
+    @Override
+    public Protocol asProtocol() {
+        throw new RuntimeException("Type mismatch: IPFeature.asProtocol()");
+    }
+
 }

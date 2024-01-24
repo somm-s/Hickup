@@ -5,6 +5,11 @@ import java.util.List;
 
 import ch.cydcampus.hickup.pipeline.feature.Feature;
 
+/**
+ * This class provides an implementation of the Abstraction interface for high order abstractions.
+ * A high order abstraction contains multiple abstractions as children. Each abstraction only contains children that are
+ * exactly one level lower.
+ */
 public class HighOrderAbstraction implements Abstraction {
 
     private int level;
@@ -14,6 +19,10 @@ public class HighOrderAbstraction implements Abstraction {
     private Feature[] features;
     private boolean sealed;
 
+    /**
+     * Create a new high order abstraction.
+     * @param level The level of the abstraction.
+     */
     public HighOrderAbstraction(int level) {
         this.level = level;
         this.lastUpdateTime = 0;

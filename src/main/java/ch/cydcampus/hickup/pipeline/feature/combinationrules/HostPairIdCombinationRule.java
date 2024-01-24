@@ -4,6 +4,10 @@ import ch.cydcampus.hickup.pipeline.PipelineConfig;
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
 import ch.cydcampus.hickup.pipeline.feature.Feature;
 
+/**
+ * Get the bidirectional host pair identifier. It is comprised by the two ip addresses of the host pair.
+ * The ip addresses are ordered lexically. Only works on level 0.
+ */
 public class HostPairIdCombinationRule implements FeatureCombinationRule {
     
     int outputIndex;

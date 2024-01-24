@@ -50,143 +50,118 @@ public class StringFeature implements Feature {
     }
 
     @Override
+    public int compareTo(Feature otherFeature) {
+        return value.compareTo(otherFeature.asString());
+    }
+
+    @Override
     public InetAddress asIP() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asIP'");
-    }
-
-    @Override
-    public void set(InetAddress value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
-    public Protocol asProtocol() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asProtocol'");
-    }
-
-    @Override
-    public void set(Protocol value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
+        throw new RuntimeException("Type mismatch: StringFeature.asIP()");
     }
 
     @Override
     public int asInt() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asInt'");
-    }
-
-    @Override
-    public void set(int value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
-    public boolean asBoolean() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asBoolean'");
-    }
-
-    @Override
-    public void set(boolean value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
-    public double asDouble() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asDouble'");
-    }
-
-    @Override
-    public void set(double value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
-    }
-
-    @Override
-    public float asFloat() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asFloat'");
-    }
-
-    @Override
-    public void set(float value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
+        throw new RuntimeException("Type mismatch: StringFeature.asInt()");
     }
 
     @Override
     public long asLong() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asLong'");
+        throw new RuntimeException("Type mismatch: StringFeature.asLong()");
+    }
+
+    @Override
+    public Protocol asProtocol() {
+        throw new RuntimeException("Type mismatch: StringFeature.asProtocol()");
+    }
+
+    @Override
+    public void set(InetAddress value) {
+        throw new RuntimeException("Type mismatch: StringFeature.set(InetAddress)");
+    }
+
+    @Override
+    public void set(int value) {
+        throw new RuntimeException("Type mismatch: StringFeature.set(int)");
     }
 
     @Override
     public void set(long value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
+        throw new RuntimeException("Type mismatch: StringFeature.set(long)");
+    }
+
+    @Override
+    public void set(Protocol value) {
+        throw new RuntimeException("Type mismatch: StringFeature.set(Protocol)");
+    }
+
+    @Override
+    public boolean asBoolean() {
+        throw new RuntimeException("Type mismatch: StringFeature.asBoolean()");
+    }
+
+    @Override
+    public void set(boolean value) {
+        throw new RuntimeException("Type mismatch: StringFeature.set(boolean)");
+    }
+
+    @Override
+    public double asDouble() {
+        throw new RuntimeException("Type mismatch: StringFeature.asDouble()");
+    }
+
+    @Override
+    public void set(double value) {
+        throw new RuntimeException("Type mismatch: StringFeature.set(double)");
+    }
+
+    @Override
+    public float asFloat() {
+        throw new RuntimeException("Type mismatch: StringFeature.asFloat()");
+    }
+
+    @Override
+    public void set(float value) {
+        throw new RuntimeException("Type mismatch: StringFeature.set(float)");
     }
 
     @Override
     public short asShort() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asShort'");
+        throw new RuntimeException("Type mismatch: StringFeature.asShort()");
     }
 
     @Override
     public void set(short value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
+        throw new RuntimeException("Type mismatch: StringFeature.set(short)");
     }
 
     @Override
     public byte asByte() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asByte'");
+        throw new RuntimeException("Type mismatch: StringFeature.asByte()");
     }
 
     @Override
     public void set(byte value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
+        throw new RuntimeException("Type mismatch: StringFeature.set(byte)");
     }
 
     @Override
     public char asChar() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asChar'");
+        throw new RuntimeException("Type mismatch: StringFeature.asChar()");
     }
 
     @Override
     public void set(char value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
+        throw new RuntimeException("Type mismatch: StringFeature.set(char)");
     }
 
     @Override
     public Object asObject() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asObject'");
+        throw new RuntimeException("Type mismatch: StringFeature.asObject()");
     }
 
     @Override
     public void set(Object value) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'set'");
+        throw new RuntimeException("Type mismatch: StringFeature.set(Object)");
     }
 
-    @Override
-    public int compareTo(Feature otherFeature) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'compareTo'");
-    }
-
-
-    
 }

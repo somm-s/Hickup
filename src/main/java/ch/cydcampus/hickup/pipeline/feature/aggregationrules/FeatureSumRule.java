@@ -3,6 +3,9 @@ package ch.cydcampus.hickup.pipeline.feature.aggregationrules;
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
 import ch.cydcampus.hickup.pipeline.feature.Feature;
 
+/**
+ * Sum the feature values from the child abstractions into the parent abstraction.
+ */
 public class FeatureSumRule implements FeatureAggregationRule {
 
     int inputIndex;

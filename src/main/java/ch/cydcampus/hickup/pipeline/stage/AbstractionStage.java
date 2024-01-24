@@ -36,7 +36,7 @@ public class AbstractionStage {
     }
 
     public Abstraction createActiveAbstraction(Abstraction childAbstraction) {
-        return AbstractionFactory.getInstance().createHighOrderAbstraction(level + 1, childAbstraction); // TODO: check if level or level + 1
+        return AbstractionFactory.getInstance().createHighOrderAbstraction(childAbstraction); // TODO: check if level or level + 1
     }
 
 }

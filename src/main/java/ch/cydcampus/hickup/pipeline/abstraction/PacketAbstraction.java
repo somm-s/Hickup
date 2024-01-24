@@ -5,10 +5,27 @@ import java.util.List;
 import ch.cydcampus.hickup.pipeline.PipelineConfig;
 import ch.cydcampus.hickup.pipeline.feature.Feature;
 
+/**
+ * This class provides an implementation of the Abstraction interface for packet abstractions.
+ * A packet abstraction contains the features of a single packet.
+ */
 public class PacketAbstraction implements Abstraction {
 
     Feature[] features;
     public static final Abstraction FINISH_PACKET = new FinishPacketAbstraction();
+
+    /**
+     * Serialize the features of this abstraction to a string. This is used to write the abstraction to a file.
+     * @return The serialized string.
+     */
+    public String serializeString() {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < PipelineConfig.NUM_DEFAULT_FEATURES; i++) {
+            sb.append(features[i].toString());
+            sb.append(",");
+        }
+        return sb.toString();
+    }
 
     @Override
     public long getLastUpdateTime() {
@@ -60,6 +77,7 @@ public class PacketAbstraction implements Abstraction {
         return this.features;
     }
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("PacketAbstraction: \n");
@@ -74,14 +92,4 @@ public class PacketAbstraction implements Abstraction {
     public Feature getFeature(int index) {
         return features[index];
     }
-    
-    public String serializeString() {
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < PipelineConfig.NUM_DEFAULT_FEATURES; i++) {
-            sb.append(features[i].toString());
-            sb.append(",");
-        }
-        return sb.toString();
-    }
-
 }

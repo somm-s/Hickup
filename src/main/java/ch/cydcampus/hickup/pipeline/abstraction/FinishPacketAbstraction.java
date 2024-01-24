@@ -1,5 +1,6 @@
 package ch.cydcampus.hickup.pipeline.abstraction;
 
-public class FinishPacketAbstraction extends PacketAbstraction {
-    // Identifies end of stream
-}
+/**
+ * This class provides a marker for the end of a stream of packets.
+ */
+public class FinishPacketAbstraction extends PacketAbstraction {}

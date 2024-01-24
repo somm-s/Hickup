@@ -3,7 +3,18 @@ package ch.cydcampus.hickup.pipeline.feature;
 import ch.cydcampus.hickup.pipeline.feature.Feature.FeatureType;
 import ch.cydcampus.hickup.pipeline.feature.Feature.Protocol;
 
+/**
+ * Factory for creating features. Initializes the features with the correct initial values.
+ */
 public class FeatureFactory {
+
+    /**
+     * Create a feature of the given type with the given value and name.
+     * @param type The type of the feature.
+     * @param value The value of the feature. Can be null to initialize with default value.
+     * @param name The name of the feature.
+     * @return The created feature.
+     */
     public static Feature createFeature(FeatureType type, Object value, String name) {
         switch (type) {
             case INT:
