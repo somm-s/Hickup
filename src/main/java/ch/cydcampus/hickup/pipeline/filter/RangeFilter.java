@@ -3,6 +3,9 @@ package ch.cydcampus.hickup.pipeline.filter;
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
 import ch.cydcampus.hickup.pipeline.feature.Feature;
 
+/**
+ * Filter abstractions based on a range of values.
+ */
 public class RangeFilter<T> implements FilterRule {
 
     private T lowerBound;
@@ -10,6 +13,13 @@ public class RangeFilter<T> implements FilterRule {
     private boolean inclusive;
     private int featureIndex;
 
+    /**
+     * Create a new range filter.
+     * @param lowerBound the lower bound of the range.
+     * @param upperBound the upper bound of the range.
+     * @param inclusive true if the bounds are inclusive, false if they are exclusive.
+     * @param featureIndex the index of the feature to filter on.
+     */
     public RangeFilter(T lowerBound, T upperBound, boolean inclusive, int featureIndex) {
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;

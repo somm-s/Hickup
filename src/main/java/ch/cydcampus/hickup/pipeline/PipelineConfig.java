@@ -9,7 +9,7 @@ import ch.cydcampus.hickup.pipeline.feature.combinationrules.HostPairIdCombinati
 import ch.cydcampus.hickup.pipeline.feature.copyrules.FeatureCopyRule;
 import ch.cydcampus.hickup.pipeline.feature.differentialrules.FeatureDifferentialRule;
 import ch.cydcampus.hickup.pipeline.filter.FilterRule;
-import ch.cydcampus.hickup.pipeline.filter.SizeFilter;
+import ch.cydcampus.hickup.pipeline.filter.HighPassSizeFilter;
 import ch.cydcampus.hickup.pipeline.stage.AbstractionRule;
 import ch.cydcampus.hickup.pipeline.stage.MultiplexerRule;
 import ch.cydcampus.hickup.pipeline.tokenizer.NumericTokenizer;
@@ -99,7 +99,7 @@ public class PipelineConfig {
     };
 
     public static final FilterRule[][] FILTER_RULES = {
-        {new SizeFilter(150)},
+        {new HighPassSizeFilter(150)},
         {},
         {}
     };
