@@ -94,6 +94,7 @@ public class HighOrderAbstraction implements Abstraction {
         StringBuilder sb = new StringBuilder();
         sb.append("Abstraction Level: " + level + "\n");
         sb.append("Last Update Time: " + lastUpdateTime + "\n");
+        sb.append("Number of Children: " + children.size() + "\n");
         sb.append("Features: \n");
         for(Feature f : features) {
             sb.append(f.getName() + ": " + f.toString() + "\n");

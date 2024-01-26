@@ -57,6 +57,9 @@ public class NumericTokenizer implements Tokenizer {
             double min = useLogScale ? Math.log(this.min) : this.min;
             double max = useLogScale ? Math.log(this.max) : this.max;
             int bucketIndex = (int) ((value - min) * numBuckets / ((max - min)));
+            if(bucketIndex >= CHARACTERS.length()) {
+                bucketIndex = CHARACTERS.length() - 1;
+            }
             char token = CHARACTERS.charAt(bucketIndex);
             return token;
         }

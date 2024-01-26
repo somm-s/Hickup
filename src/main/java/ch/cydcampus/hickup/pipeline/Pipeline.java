@@ -1,5 +1,8 @@
 package ch.cydcampus.hickup.pipeline;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import org.pcap4j.core.NotOpenException;
 import org.pcap4j.core.PcapNativeException;
 
@@ -28,16 +31,19 @@ public class Pipeline {
     private long logicClock;
     private MultiplexerStage[] multiplexerStages;
     private boolean finished;
+    private String[] result;
+    private FileWriter[] outputFileWriter;
 
     /**
      * Constructs a new pipeline according to the configuration.
      * @throws PcapNativeException
      * @throws NotOpenException
+     * @throws IOException 
      */
-    public Pipeline() throws PcapNativeException, NotOpenException {
+    public Pipeline() throws PcapNativeException, NotOpenException, IOException {
         abstractionQueues = new AbstractionQueue[PipelineConfig.NUM_ABSTRACTION_LEVELS];
         // dataSource = new DataBaseSource("localhost", 5432,"ls22", "lab", "lab", "capture");
-        dataSource = new FileSource("integration_tests", ""); // 10.3.8.38 // /home/sosi/ls22/2022/BT03-CHE/abstractions/0 // integration_tests
+        dataSource = new FileSource("/home/sosi/ls22/2022/BT03-CHE/abstractions/0", "10.3.8.38"); // 10.3.8.38 // /home/sosi/ls22/2022/BT03-CHE/abstractions/0 // integration_tests
         // dataSource = new NetworkSource("wlp0s20f3", "");
         abstractionQueues[0] = dataSource;
         for(int i = 1; i < PipelineConfig.NUM_ABSTRACTION_LEVELS; i++) {
@@ -49,6 +55,13 @@ public class Pipeline {
         }
         this.finished = false;
         this.logicClock = 0;
+        // use buffered writer
+        this.outputFileWriter = new FileWriter[PipelineConfig.NUM_ABSTRACTION_LEVELS];
+        result = new String[PipelineConfig.NUM_ABSTRACTION_LEVELS];
+        for(int i = 0; i < PipelineConfig.NUM_ABSTRACTION_LEVELS; i++) {
+            outputFileWriter[i] = new FileWriter("output" + i + ".txt");
+            result[i] = "";
+        }
     }
 
     /**
@@ -64,8 +77,8 @@ public class Pipeline {
                 continue;
             } else if(idx == 0) {
                 if(abstraction == PacketAbstraction.FINISH_PACKET) {
+                    idx = (idx + 1) % PipelineConfig.NUM_ABSTRACTION_LEVELS;
                     finished = true;
-                    idx = idx + 1;
                     logicClock = Long.MAX_VALUE;
                     continue;
                 } else {
@@ -75,6 +88,17 @@ public class Pipeline {
             }
             abstraction.seal();
             processAbstraction(abstraction, idx);
+            if(idx == 0) {
+                idx = (idx + 1) % PipelineConfig.NUM_ABSTRACTION_LEVELS;
+            }
+        }
+        try {
+            for(int i = 0; i < PipelineConfig.NUM_ABSTRACTION_LEVELS; i++) {
+                outputFileWriter[i].write(result[i]);
+                outputFileWriter[i].close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -100,9 +124,20 @@ public class Pipeline {
                 return;
             }
         }
-        if(level == PipelineConfig.TOKENIZATION_LAYER) {
+        if(level <= PipelineConfig.TOKENIZATION_LAYER) {
             outputTokenStream(abstraction);
-            return;
+            if(result[level].length() > 1000) {
+                try {
+                    outputFileWriter[level].write(result[level]);
+                    outputFileWriter[level].flush();
+                    result[level] = "";
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if(level == PipelineConfig.TOKENIZATION_LAYER)
+                return;
         }
         AbstractionStage abstractionStage = multiplexerStages[level].getAbstractionStage(abstraction);
         Abstraction activeAbstraction = abstractionStage.getActiveAbstraction();
@@ -122,14 +157,15 @@ public class Pipeline {
         abstractionStage.setActiveAbstraction(activeAbstraction);
     }
 
-    private void outputTokenStream(Abstraction abstraction) {
-        for(Tokenizer tokenizer : PipelineConfig.TOKENIZERS[PipelineConfig.TOKENIZATION_LAYER]) {
-            System.out.print(tokenizer.tokenize(abstraction));
+    private String outputTokenStream(Abstraction abstraction) {
+        for(Tokenizer tokenizer : PipelineConfig.TOKENIZERS[abstraction.getLevel()]) {
+            result[abstraction.getLevel()] += tokenizer.tokenize(abstraction);
         }
-        System.out.print(" ");
+        result[abstraction.getLevel()] += " ";
+        return result[abstraction.getLevel()];
     }
 
-    public static void main(String[] args) throws PcapNativeException, NotOpenException {
+    public static void main(String[] args) throws PcapNativeException, NotOpenException, IOException {
         Pipeline pipeline = new Pipeline();
         pipeline.runPipeline();
     }
