@@ -12,7 +12,8 @@ import ch.cydcampus.hickup.pipeline.filter.FilterRule;
 import ch.cydcampus.hickup.pipeline.filter.HighPassSizeFilter;
 import ch.cydcampus.hickup.pipeline.stage.AbstractionRule;
 import ch.cydcampus.hickup.pipeline.stage.MultiplexerRule;
-import ch.cydcampus.hickup.pipeline.tokenizer.NumericTokenizer;
+import ch.cydcampus.hickup.pipeline.tokenizer.Tokenizer;
+import ch.cydcampus.hickup.pipeline.tokenizer.ValueTokenizer;
 
 public class PipelineConfig {
     
@@ -72,9 +73,15 @@ public class PipelineConfig {
         {},
         {} // always empty.
     };
-    public static final NumericTokenizer[][] TOKENIZERS = {
-        { new NumericTokenizer(150, 20000, true, BYTES_INDEX)}, // level 0
-        { new NumericTokenizer(150, 80000, true, 1) }, // level 1
-        { new NumericTokenizer(1000, 20000000, true, 0) } // level 2
+    // public static final Tokenizer[][] TOKENIZERS = {
+    //     { new NumericTokenizer(150, 20000, true, BYTES_INDEX)}, // level 0
+    //     { new NumericTokenizer(150, 80000, true, 1) }, // level 1
+    //     { new NumericTokenizer(1000, 20000000, true, 0) } // level 2
+    // };
+
+    public static final Tokenizer[][] TOKENIZERS = {
+        { new ValueTokenizer(BYTES_INDEX)},
+        { new ValueTokenizer(1) },
+        { new ValueTokenizer(0) }
     };
 }

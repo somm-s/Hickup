@@ -40,11 +40,9 @@ public class Pipeline {
      * @throws NotOpenException
      * @throws IOException 
      */
-    public Pipeline() throws PcapNativeException, NotOpenException, IOException {
+    public Pipeline(String inputPath, String outputPath) throws PcapNativeException, NotOpenException, IOException {
         abstractionQueues = new AbstractionQueue[PipelineConfig.NUM_ABSTRACTION_LEVELS];
-        // dataSource = new DataBaseSource("localhost", 5432,"ls22", "lab", "lab", "capture");
-        dataSource = new FileSource("/home/sosi/ls22/2022/BT03-CHE/abstractions/0", "10.3.8.38"); // 10.3.8.38 // /home/sosi/ls22/2022/BT03-CHE/abstractions/0 // integration_tests
-        // dataSource = new NetworkSource("wlp0s20f3", "");
+        dataSource = new FileSource(inputPath, "");
         abstractionQueues[0] = dataSource;
         for(int i = 1; i < PipelineConfig.NUM_ABSTRACTION_LEVELS; i++) {
             abstractionQueues[i] = new HighOrderAbstractionQueue(i, PipelineConfig.TIMEOUTS);
@@ -59,7 +57,7 @@ public class Pipeline {
         this.outputFileWriter = new FileWriter[PipelineConfig.NUM_ABSTRACTION_LEVELS];
         result = new String[PipelineConfig.NUM_ABSTRACTION_LEVELS];
         for(int i = 0; i < PipelineConfig.NUM_ABSTRACTION_LEVELS; i++) {
-            outputFileWriter[i] = new FileWriter("output" + i + ".txt");
+            outputFileWriter[i] = new FileWriter(outputPath + "/output" + i + ".txt");
             result[i] = "";
         }
     }
@@ -166,7 +164,7 @@ public class Pipeline {
     }
 
     public static void main(String[] args) throws PcapNativeException, NotOpenException, IOException {
-        Pipeline pipeline = new Pipeline();
+        Pipeline pipeline = new Pipeline("path to csv / zip dataset", "output path");
         pipeline.runPipeline();
     }
 }

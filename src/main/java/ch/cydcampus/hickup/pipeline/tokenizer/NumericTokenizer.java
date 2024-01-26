@@ -30,7 +30,7 @@ public class NumericTokenizer implements Tokenizer {
     }
 
     @Override
-    public char tokenize(Abstraction abstraction) {
+    public String tokenize(Abstraction abstraction) {
         Feature feature = abstraction.getFeature(idx);
         switch(feature.getType()) {
             case INT:
@@ -46,11 +46,11 @@ public class NumericTokenizer implements Tokenizer {
         }
     }
 
-    private char tokenize(double value) {
+    private String tokenize(double value) {
         if (value < min) {
-            return CHARACTERS.charAt(0);
+            return "" + CHARACTERS.charAt(0);
         } else if (value > max) {
-            return CHARACTERS.charAt(CHARACTERS.length() - 1);
+            return "" + CHARACTERS.charAt(CHARACTERS.length() - 1);
         } else {
             int numBuckets = CHARACTERS.length();
             value = useLogScale ? Math.log(value) : value;
@@ -61,7 +61,7 @@ public class NumericTokenizer implements Tokenizer {
                 bucketIndex = CHARACTERS.length() - 1;
             }
             char token = CHARACTERS.charAt(bucketIndex);
-            return token;
+            return "" + token;
         }
     }
 }

@@ -8,5 +8,5 @@ public interface Tokenizer {
      * @param abstraction
      * @return the character that the feature is mapped to
      */
-    public char tokenize(Abstraction abstraction);
+    public String tokenize(Abstraction abstraction);
 }
