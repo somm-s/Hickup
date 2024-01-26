@@ -37,7 +37,7 @@ Follow these steps to install HiCKUP Analyser:
     mvn clean install
     ```
 
-5. Run integration tests:
+5. Run integration tests with coverage information:
     ```
     mvn clean jacoco:prepare-agent test jacoco:report
     ```
