@@ -53,7 +53,6 @@ public class Pipeline {
         }
         this.finished = false;
         this.logicClock = 0;
-        // use buffered writer
         this.outputFileWriter = new FileWriter[PipelineConfig.NUM_ABSTRACTION_LEVELS];
         result = new String[PipelineConfig.NUM_ABSTRACTION_LEVELS];
         for(int i = 0; i < PipelineConfig.NUM_ABSTRACTION_LEVELS; i++) {

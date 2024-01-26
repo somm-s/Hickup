@@ -51,7 +51,7 @@ public class PipelineConfig {
     public static final FeatureCombinationRule[][] FEATURE_COMBINATION_RULES = {
         {},
         {},
-        {} // can be non-empty
+        {}
     };
     public static final FeatureAggregationRule[][] FEATURE_AGGREGATION_RULES = {
         {new FeatureSumRule().setInputIndex(BYTES_INDEX).setOutputIndex(1)},
@@ -71,15 +71,16 @@ public class PipelineConfig {
     public static final FeatureDifferentialRule[][] FEATURE_DIFFERENTIAL_RULES = {
         {},
         {},
-        {} // always empty.
+        {} // always empty. TODO: maybe add a differential rule for the last level
     };
-    // public static final Tokenizer[][] TOKENIZERS = {
+
+    // public static final Tokenizer[][] TOKENIZERS = { // Use this tokenizer for running the pipeline on real data
     //     { new NumericTokenizer(150, 20000, true, BYTES_INDEX)}, // level 0
     //     { new NumericTokenizer(150, 80000, true, 1) }, // level 1
     //     { new NumericTokenizer(1000, 20000000, true, 0) } // level 2
     // };
 
-    public static final Tokenizer[][] TOKENIZERS = {
+    public static final Tokenizer[][] TOKENIZERS = { // This tokenizer is used for testing the pipeline (actual values instead of buckets)
         { new ValueTokenizer(BYTES_INDEX)},
         { new ValueTokenizer(1) },
         { new ValueTokenizer(0) }
