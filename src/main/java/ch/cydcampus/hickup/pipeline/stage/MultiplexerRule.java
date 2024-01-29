@@ -11,6 +11,14 @@ public class MultiplexerRule {
     private int packetLevelFeatureIdx;
 
     /**
+     * Creates a new multiplexer rule where all packets are multiplexed into one abstraction.
+     */
+    public MultiplexerRule() {
+        this.featureIdx = -1;
+        this.packetLevelFeatureIdx = -1;
+    }
+
+    /**
      * Creates a new multiplexer rule.
      * @param featureIdx index of the feature that is used to calculate the identifier
      * @param packetLevelFeatureIdx index of the feature that is used to calculate the identifier on packet level
@@ -26,6 +34,10 @@ public class MultiplexerRule {
      * @return the identifier
      */
     public String getIdentifier(Abstraction abstraction) {
+        if(featureIdx == -1) {
+            return "static";
+        }
+
         if(abstraction.getLevel() == 0) {
             return abstraction.getFeatures()[packetLevelFeatureIdx].toString();
         }

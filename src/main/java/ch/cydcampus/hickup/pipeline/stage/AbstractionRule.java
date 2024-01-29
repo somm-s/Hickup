@@ -39,7 +39,7 @@ public class AbstractionRule {
         if(activeAbstraction == null) {
             return false;
         }
-        long timeDiff = newAbstraction.getFirstUpdateTime() - prevChildAbstraction.getLastUpdateTime();
+        long timeDiff = newAbstraction.getFirstUpdateTime() - activeAbstraction.getLastUpdateTime();
         if(timeDiff > timeout) {
             return false;
         }

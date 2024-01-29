@@ -16,6 +16,7 @@ import ch.cydcampus.hickup.pipeline.feature.differentialrules.FeatureDifferentia
 import ch.cydcampus.hickup.pipeline.filter.FilterRule;
 import ch.cydcampus.hickup.pipeline.source.DataSource;
 import ch.cydcampus.hickup.pipeline.source.FileSource;
+import ch.cydcampus.hickup.pipeline.source.NetworkSource;
 import ch.cydcampus.hickup.pipeline.stage.AbstractionStage;
 import ch.cydcampus.hickup.pipeline.stage.MultiplexerStage;
 import ch.cydcampus.hickup.pipeline.tokenizer.Tokenizer;
@@ -42,7 +43,8 @@ public class Pipeline {
      */
     public Pipeline(String inputPath, String outputPath) throws PcapNativeException, NotOpenException, IOException {
         abstractionQueues = new AbstractionQueue[PipelineConfig.NUM_ABSTRACTION_LEVELS];
-        dataSource = new FileSource(inputPath, "");
+        // dataSource = new FileSource(inputPath, "");
+        dataSource = new NetworkSource("wlp0s20f3", "");
         abstractionQueues[0] = dataSource;
         for(int i = 1; i < PipelineConfig.NUM_ABSTRACTION_LEVELS; i++) {
             abstractionQueues[i] = new HighOrderAbstractionQueue(i, PipelineConfig.TIMEOUTS);
@@ -121,9 +123,11 @@ public class Pipeline {
                 return;
             }
         }
-        if(level <= PipelineConfig.TOKENIZATION_LAYER) {
-            outputTokenStream(abstraction);
-            if(result[level].length() > 1000) {
+        if(level == PipelineConfig.TOKENIZATION_LAYER) {
+            StringBuilder sb = new StringBuilder();
+            outputTokenStream(abstraction, sb);
+            result[level] += sb.toString() + "\n";
+            if(result[level].length() > 0) {
                 try {
                     outputFileWriter[level].write(result[level]);
                     outputFileWriter[level].flush();
@@ -154,16 +158,29 @@ public class Pipeline {
         abstractionStage.setActiveAbstraction(activeAbstraction);
     }
 
-    private String outputTokenStream(Abstraction abstraction) {
+    private void outputTokenStream(Abstraction abstraction, StringBuilder result) {
         for(Tokenizer tokenizer : PipelineConfig.TOKENIZERS[abstraction.getLevel()]) {
-            result[abstraction.getLevel()] += tokenizer.tokenize(abstraction);
+            result.append(tokenizer.tokenize(abstraction));
         }
-        result[abstraction.getLevel()] += " ";
-        return result[abstraction.getLevel()];
+        result.append(" ");
+        if(abstraction.getLevel() > 1) {
+            result.append("[");
+            for(Abstraction child : abstraction.getChildren()) {
+                outputTokenStream(child, result);
+            }
+            result.append("] ");
+        }
     }
 
     public static void main(String[] args) throws PcapNativeException, NotOpenException, IOException {
-        Pipeline pipeline = new Pipeline("path to csv / zip dataset", "output path");
+        if(args.length < 2) {
+            System.out.println("Usage: java -jar pipeline.jar <inputPath> <outputPath>");
+            return;
+        }
+        String inputPath = args[0];
+        String outputPath = args[1];
+
+        Pipeline pipeline = new Pipeline(inputPath, outputPath);
         pipeline.runPipeline();
     }
 }
