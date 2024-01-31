@@ -19,7 +19,11 @@ import ch.cydcampus.hickup.pipeline.tokenizer.Tokenizer;
 import ch.cydcampus.hickup.pipeline.tokenizer.ValueTokenizer;
 
 public class PipelineConfig {
-    
+
+    private PipelineConfig() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static final int NUM_ABSTRACTION_LEVELS = 4;
     public static final int MAX_ABSTRACTION_LEVEL = NUM_ABSTRACTION_LEVELS - 1;
     public static final int TOKENIZATION_LAYER = 3;
