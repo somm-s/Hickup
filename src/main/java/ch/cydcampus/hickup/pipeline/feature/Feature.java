@@ -26,6 +26,17 @@ public interface Feature {
             }
         }
 
+        public static int toInt(Protocol protocol) {
+            switch (protocol) {
+                case TCP:
+                    return 0;
+                case UDP:
+                    return 1;
+                default:
+                    return 2;
+            }
+        }
+
         public static String toString(Protocol protocol) {
             switch (protocol) {
                 case TCP:

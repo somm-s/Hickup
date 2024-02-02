@@ -20,6 +20,7 @@ import ch.cydcampus.hickup.pipeline.source.NetworkSource;
 import ch.cydcampus.hickup.pipeline.stage.AbstractionStage;
 import ch.cydcampus.hickup.pipeline.stage.MultiplexerStage;
 import ch.cydcampus.hickup.pipeline.tokenizer.Tokenizer;
+import ch.cydcampus.hickup.util.AbstractionWriter;
 
 /**
  * The Pipeline class is responsible to construct a pipeline according to the configuration and run it.
@@ -32,20 +33,10 @@ public class Pipeline {
     private long logicClock;
     private MultiplexerStage[] multiplexerStages;
     private boolean finished;
-    private String[] result;
-    private FileWriter[] outputFileWriter;
+    private AbstractionWriter abstractionWriter;
 
-    /**
-     * Constructs a new pipeline according to the configuration.
-     * @throws PcapNativeException
-     * @throws NotOpenException
-     * @throws IOException 
-     */
-    public Pipeline(String inputPath, String outputPath) throws PcapNativeException, NotOpenException, IOException {
+    private Pipeline(String outputFilePath) throws IOException {
         abstractionQueues = new AbstractionQueue[PipelineConfig.NUM_ABSTRACTION_LEVELS];
-        // dataSource = new FileSource(inputPath, "");
-        dataSource = new NetworkSource("wlp0s20f3", "");
-        abstractionQueues[0] = dataSource;
         for(int i = 1; i < PipelineConfig.NUM_ABSTRACTION_LEVELS; i++) {
             abstractionQueues[i] = new HighOrderAbstractionQueue(i, PipelineConfig.TIMEOUTS);
         }
@@ -55,18 +46,36 @@ public class Pipeline {
         }
         this.finished = false;
         this.logicClock = 0;
-        this.outputFileWriter = new FileWriter[PipelineConfig.NUM_ABSTRACTION_LEVELS];
-        result = new String[PipelineConfig.NUM_ABSTRACTION_LEVELS];
-        for(int i = 0; i < PipelineConfig.NUM_ABSTRACTION_LEVELS; i++) {
-            outputFileWriter[i] = new FileWriter(outputPath + "/output" + i + ".txt");
-            result[i] = "";
-        }
+        this.abstractionWriter = new AbstractionWriter(outputFilePath);
+    }
+
+    /** Constructs a new pipeline from a network interface
+     * @param interfaceName The name of the network interface
+     * @param outputPath The path to the output file
+     */
+    public Pipeline(String interfaceName, String outputPath) throws PcapNativeException, NotOpenException, IOException {
+        this(outputPath);
+        dataSource = new NetworkSource(interfaceName, "");
+        abstractionQueues[0] = dataSource;
+    }
+
+    /**
+     * Constructs a new pipeline according to the configuration.
+     * @throws PcapNativeException
+     * @throws NotOpenException
+     * @throws IOException 
+     */
+    public Pipeline(String inputPath, String filterHost, String outputPath) throws PcapNativeException, NotOpenException, IOException {
+        this(outputPath);
+        dataSource = new FileSource(inputPath, filterHost);
+        abstractionQueues[0] = dataSource;
     }
 
     /**
      * Runs the pipeline until the data source is finished and all abstractions are processed.
+     * @throws IOException 
      */
-    public void runPipeline() {
+    public void runPipeline() throws IOException {
         dataSource.start();
         int idx = 0;
         while(!finished || idx != 0) {
@@ -91,14 +100,7 @@ public class Pipeline {
                 idx = (idx + 1) % PipelineConfig.NUM_ABSTRACTION_LEVELS;
             }
         }
-        try {
-            for(int i = 0; i < PipelineConfig.NUM_ABSTRACTION_LEVELS; i++) {
-                outputFileWriter[i].write(result[i]);
-                outputFileWriter[i].close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        abstractionWriter.close();
     }
 
     private void updateAbstractions(Abstraction packetAbstraction) {
@@ -114,7 +116,7 @@ public class Pipeline {
         }
     }
 
-    private void processAbstraction(Abstraction abstraction, int level) {
+    private void processAbstraction(Abstraction abstraction, int level) throws IOException {
         for(FeatureCombinationRule rule : PipelineConfig.FEATURE_COMBINATION_RULES[level]) {
             rule.combine(abstraction);
         }
@@ -124,21 +126,8 @@ public class Pipeline {
             }
         }
         if(level == PipelineConfig.TOKENIZATION_LAYER) {
-            StringBuilder sb = new StringBuilder();
-            outputTokenStream(abstraction, sb);
-            result[level] += sb.toString() + "\n";
-            if(result[level].length() > 0) {
-                try {
-                    outputFileWriter[level].write(result[level]);
-                    outputFileWriter[level].flush();
-                    result[level] = "";
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if(level == PipelineConfig.TOKENIZATION_LAYER)
-                return;
+            abstractionWriter.writeAbstraction(abstraction);
+            return;
         }
         AbstractionStage abstractionStage = multiplexerStages[level].getAbstractionStage(abstraction);
         Abstraction activeAbstraction = abstractionStage.getActiveAbstraction();
@@ -158,29 +147,24 @@ public class Pipeline {
         abstractionStage.setActiveAbstraction(activeAbstraction);
     }
 
-    private void outputTokenStream(Abstraction abstraction, StringBuilder result) {
-        for(Tokenizer tokenizer : PipelineConfig.TOKENIZERS[abstraction.getLevel()]) {
-            result.append(tokenizer.tokenize(abstraction));
-        }
-        result.append(" ");
-        if(abstraction.getLevel() > 1) {
-            result.append("[");
-            for(Abstraction child : abstraction.getChildren()) {
-                outputTokenStream(child, result);
-            }
-            result.append("] ");
-        }
-    }
-
     public static void main(String[] args) throws PcapNativeException, NotOpenException, IOException {
         if(args.length < 2) {
-            System.out.println("Usage: java -jar pipeline.jar <inputPath> <outputPath>");
+            System.out.println("Usage: java -jar pipeline.jar <interface> <outputPath>");
             return;
         }
-        String inputPath = args[0];
-        String outputPath = args[1];
 
-        Pipeline pipeline = new Pipeline(inputPath, outputPath);
+        if(args.length == 3) {
+            String inputPath = args[0];
+            String filterHost = args[1];
+            String outputPath = args[2];
+            Pipeline pipeline = new Pipeline(inputPath, filterHost, outputPath);
+            pipeline.runPipeline();
+            return;
+        }
+
+        String interfaceName = args[0];
+        String outputPath = args[1];
+        Pipeline pipeline = new Pipeline(interfaceName, outputPath);
         pipeline.runPipeline();
     }
 }
