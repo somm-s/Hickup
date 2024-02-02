@@ -95,6 +95,12 @@ public class Pipeline {
                 }
             }
             abstraction.seal();
+
+            // remove this abstraction from active abstractions
+            if(abstraction.getLevel() > 0) {
+                multiplexerStages[abstraction.getLevel() - 1].removeAbstractionStage(abstraction); // TODO: This is faulty. Should not remove if active abstraction is not sealed
+            }
+
             processAbstraction(abstraction, idx);
             if(idx == 0) {
                 idx = (idx + 1) % PipelineConfig.NUM_ABSTRACTION_LEVELS;
@@ -127,6 +133,8 @@ public class Pipeline {
         }
         if(level == PipelineConfig.TOKENIZATION_LAYER) {
             abstractionWriter.writeAbstraction(abstraction);
+            return;
+        } else if(level >= PipelineConfig.TOKENIZATION_LAYER) {
             return;
         }
         AbstractionStage abstractionStage = multiplexerStages[level].getAbstractionStage(abstraction);

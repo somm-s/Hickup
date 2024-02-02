@@ -26,7 +26,7 @@ public class PipelineConfig {
 
     public static final int NUM_ABSTRACTION_LEVELS = 4;
     public static final int MAX_ABSTRACTION_LEVEL = NUM_ABSTRACTION_LEVELS - 1;
-    public static final int TOKENIZATION_LAYER = 3;
+    public static final int TOKENIZATION_LAYER = 2;
     public static final long[] TIMEOUTS = { 0, 30000, 1000000, 0 };
     public static final int SRC_IP_INDEX = 0;
     public static final int DST_IP_INDEX = 1;

@@ -41,4 +41,22 @@ public class MultiplexerStage {
         }
         return abstractionStage;
     }
+
+    /**
+     * Removes the abstraction stage for the abstraction. For this, a child abstraction is needed
+     * to get the identifier of the abstraction stage that needs to be removed.
+     * @param abstraction
+     */
+    public void removeAbstractionStage(Abstraction abstraction) {
+        if(abstraction.getChildren().isEmpty()) {
+            return;
+        }
+        Abstraction childAbstraction = abstraction.getChildren().get(0);
+        String identifier = multiplexerRule.getIdentifier(childAbstraction);
+        AbstractionStage abstractionStage = childStages.get(identifier);
+        if(abstractionStage == null || abstractionStage.getActiveAbstraction() != abstraction) {
+            return;
+        }
+        childStages.remove(identifier);
+    }
 }
