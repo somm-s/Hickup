@@ -4,3 +4,7 @@ target/
 *.pcap
 *.pcap.gz
 pcaps/
+outputs/
+output/
+*.txt
+*.jsonl
