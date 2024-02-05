@@ -69,6 +69,7 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
         File folder = new File(pcapFolderPath);
         System.out.println(folder.listFiles());
         File[] listOfFiles = folder.listFiles();
+        System.out.println(listOfFiles);
         java.util.Arrays.sort(listOfFiles);
         RecursivePcapConversionTask task = new RecursivePcapConversionTask(outputPath, filter, listOfFiles, 0, listOfFiles.length);
         forkJoinPool.invoke(task);
