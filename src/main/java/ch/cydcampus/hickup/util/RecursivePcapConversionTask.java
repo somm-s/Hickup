@@ -67,9 +67,18 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
     public static void convertPcaps(String pcapFolderPath, String outputPath, String filter, int numThreads) throws IOException {
         ForkJoinPool forkJoinPool = new ForkJoinPool(numThreads);
         File folder = new File(pcapFolderPath);
-        System.out.println(folder.listFiles());
         File[] listOfFiles = folder.listFiles();
-        System.out.println(listOfFiles);
+
+        // remove files that are not pcap files / pcap.gz files
+        List<File> pcapFiles = new ArrayList<>();
+
+        for(File file : listOfFiles) {
+            if(file.isFile() && hasAllowedEnding(file, new String[] {"pcap", "pcap.gz"})) {
+                pcapFiles.add(file);
+            }
+        }
+
+        listOfFiles = pcapFiles.toArray(new File[0]);
         java.util.Arrays.sort(listOfFiles);
         RecursivePcapConversionTask task = new RecursivePcapConversionTask(outputPath, filter, listOfFiles, 0, listOfFiles.length);
         forkJoinPool.invoke(task);
@@ -106,10 +115,7 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
         int pcapIndex = this.start;
         System.out.println("Worker " + Thread.currentThread().getId() + " processing " + pcapFiles[pcapIndex].getName());
         String pcapFilePath = pcapFiles[pcapIndex].getAbsolutePath();
-        if(!hasAllowedEnding(pcapFiles[pcapIndex], new String[] {"pcap", "pcap.gz"})) {
-            System.out.println("File " + pcapFiles[pcapIndex].getName() + " has wrong file ending, skipping...");
-            return;
-        }
+
         File pcapOutputDirectory = new File(combinePaths(outputPath, Integer.toString(pcapIndex)));
         pcapOutputDirectory.mkdirs();
         if(pcapFiles[pcapIndex].getName().endsWith(".pcap.gz")) {
@@ -289,7 +295,7 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
         return Long.parseLong(splits[splits.length - 1]);
     }
 
-    private boolean hasFileEnding(File file, String ending) {
+    private static boolean hasFileEnding(File file, String ending) {
         String fileName = file.getName();
         if(fileName.length() < ending.length()) {
             return false;
@@ -298,7 +304,7 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
         return lastPart.equals("." + ending);
     }
 
-    private boolean hasAllowedEnding(File file, String[] allowedEndings) {
+    private static boolean hasAllowedEnding(File file, String[] allowedEndings) {
         for(String ending : allowedEndings) {
             if(hasFileEnding(file, ending)) {
                 return true;
