@@ -297,7 +297,7 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
 
     private static boolean hasFileEnding(File file, String ending) {
         String fileName = file.getName();
-        if(fileName.length() < ending.length()) {
+        if(fileName.length() <= ending.length() + 1) {
             return false;
         }
         String lastPart = fileName.substring(fileName.length() - ending.length() - 1, fileName.length());
