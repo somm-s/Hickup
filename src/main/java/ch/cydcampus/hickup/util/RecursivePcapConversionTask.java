@@ -138,6 +138,7 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
             return;
         }
         PacketListener pl = new PacketListener() {
+            @SuppressWarnings("resource")
             @Override
             public void gotPacket(Packet packet) {
                 PacketAbstraction abstraction = null;

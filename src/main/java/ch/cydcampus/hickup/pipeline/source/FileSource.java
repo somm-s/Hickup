@@ -60,6 +60,7 @@ public class FileSource extends DataSource {
         }
         String[] parts = null;
         try {
+            @SuppressWarnings("resource")
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(indexFile.getAbsolutePath())));
             String line;
             while((line = reader.readLine()) != null) {

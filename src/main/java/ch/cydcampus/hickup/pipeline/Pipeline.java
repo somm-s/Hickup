@@ -1,6 +1,5 @@
 package ch.cydcampus.hickup.pipeline;
 
-import java.io.FileWriter;
 import java.io.IOException;
 
 import org.pcap4j.core.NotOpenException;
@@ -19,8 +18,7 @@ import ch.cydcampus.hickup.pipeline.source.FileSource;
 import ch.cydcampus.hickup.pipeline.source.NetworkSource;
 import ch.cydcampus.hickup.pipeline.stage.AbstractionStage;
 import ch.cydcampus.hickup.pipeline.stage.MultiplexerStage;
-import ch.cydcampus.hickup.pipeline.tokenizer.Tokenizer;
-import ch.cydcampus.hickup.util.AbstractionWriter;
+import ch.cydcampus.hickup.util.AbstractionCsvWriter;
 
 /**
  * The Pipeline class is responsible to construct a pipeline according to the configuration and run it.
@@ -33,7 +31,7 @@ public class Pipeline {
     private long logicClock;
     private MultiplexerStage[] multiplexerStages;
     private boolean finished;
-    private AbstractionWriter abstractionWriter;
+    private AbstractionCsvWriter abstractionWriter;
 
     private Pipeline(String outputFilePath) throws IOException {
         abstractionQueues = new AbstractionQueue[PipelineConfig.NUM_ABSTRACTION_LEVELS];
@@ -46,7 +44,7 @@ public class Pipeline {
         }
         this.finished = false;
         this.logicClock = 0;
-        this.abstractionWriter = new AbstractionWriter(outputFilePath);
+        this.abstractionWriter = new AbstractionCsvWriter(outputFilePath, PipelineConfig.MIN_TOKENIZATION_LEVEL, PipelineConfig.MAX_TOKENIZATION_LEVEL);
     }
 
     /** Constructs a new pipeline from a network interface
@@ -131,10 +129,10 @@ public class Pipeline {
                 return;
             }
         }
-        if(level == PipelineConfig.TOKENIZATION_LAYER) {
-            abstractionWriter.writeAbstraction(abstraction);
+        if(level == PipelineConfig.MAX_TOKENIZATION_LEVEL) {
+            abstractionWriter.writeAbstraction(abstraction, -1);
             return;
-        } else if(level >= PipelineConfig.TOKENIZATION_LAYER) {
+        } else if(level >= PipelineConfig.MAX_TOKENIZATION_LEVEL) {
             return;
         }
         AbstractionStage abstractionStage = multiplexerStages[level].getAbstractionStage(abstraction);

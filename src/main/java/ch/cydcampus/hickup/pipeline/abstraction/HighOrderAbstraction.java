@@ -25,8 +25,8 @@ public class HighOrderAbstraction implements Abstraction {
      */
     public HighOrderAbstraction(int level) {
         this.level = level;
-        this.lastUpdateTime = 0;
-        this.firstUpdateTime = 0;
+        this.lastUpdateTime = -1;
+        this.firstUpdateTime = -1;
         this.children = new LinkedList<>();
         this.sealed = false;
     }
@@ -72,7 +72,7 @@ public class HighOrderAbstraction implements Abstraction {
         if(updateTime > lastUpdateTime) {
             lastUpdateTime = updateTime;
         }
-        if(firstUpdateTime == 0) {
+        if(firstUpdateTime == -1) {
             firstUpdateTime = abstraction.getFirstUpdateTime();
         }
         children.add(abstraction);
@@ -105,5 +105,33 @@ public class HighOrderAbstraction implements Abstraction {
     @Override
     public Feature getFeature(int index) {
         return features[index];
+    }
+
+    @Override
+    public String toCsvString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getFirstUpdateTime());
+        sb.append(",");
+        sb.append(this.getLastUpdateTime());
+        sb.append(",");
+        for(Feature f : features) {
+            sb.append(f.toString() + ",");
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
+    }
+
+    @Override
+    public String getCsvHeader() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("startTime");
+        sb.append(",");
+        sb.append("endTime");
+        sb.append(",");
+        for(Feature f : features) {
+            sb.append(f.getName() + ",");
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
     }
 }

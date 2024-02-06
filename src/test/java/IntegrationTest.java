@@ -2,7 +2,6 @@ import org.junit.Test;
 import org.pcap4j.core.NotOpenException;
 import org.pcap4j.core.PcapNativeException;
 
-import ch.cydcampus.hickup.pipeline.Pipeline;
 
 import static org.junit.Assert.assertEquals;
 
@@ -11,7 +10,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
 
 public class IntegrationTest {
 
@@ -38,6 +36,7 @@ public class IntegrationTest {
         // }
     }
 
+    @SuppressWarnings("unused")
     private void compareFiles(File output, File expected) throws FileNotFoundException, IOException {
         try (BufferedReader outputReader = new BufferedReader(new FileReader(output));
             BufferedReader expectedReader = new BufferedReader(new FileReader(expected))) {

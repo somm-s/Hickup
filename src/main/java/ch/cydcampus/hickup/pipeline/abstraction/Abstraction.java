@@ -87,4 +87,13 @@ public interface Abstraction {
      */
     public Feature getFeature(int index);
 
+    /**
+     * Get the csv string representation of this abstraction.
+     */
+    public String toCsvString();
+
+    /**
+     * Get the csv header for the csv string representation of this abstraction.
+     */
+    public String getCsvHeader();
 }

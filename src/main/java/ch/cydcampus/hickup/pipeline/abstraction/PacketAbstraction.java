@@ -92,4 +92,26 @@ public class PacketAbstraction implements Abstraction {
     public Feature getFeature(int index) {
         return features[index];
     }
+
+    @Override
+    public String toCsvString() {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < PipelineConfig.NUM_DEFAULT_FEATURES; i++) {
+            sb.append(features[i].toString());
+            sb.append(",");
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
+    }
+
+    @Override
+    public String getCsvHeader() {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < PipelineConfig.NUM_DEFAULT_FEATURES; i++) {
+            sb.append(features[i].getName());
+            sb.append(",");
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
+    }
 }

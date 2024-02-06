@@ -1,7 +1,6 @@
 package ch.cydcampus.hickup.util;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -11,7 +10,6 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
 import ch.cydcampus.hickup.pipeline.feature.Feature;
@@ -23,7 +21,7 @@ import ch.cydcampus.hickup.pipeline.feature.Feature.Protocol;
  * The fields of the JSON object are the features of the abstraction as well as the timestamp and the level of the abstraction.
  * The children of the abstraction are represented as an array of JSON objects.
  */
-public class AbstractionWriter {
+public class AbstractionJsonWriter {
 
     private BufferedWriter bufferedWriter;
     private ObjectMapper objectMapper;
@@ -34,7 +32,7 @@ public class AbstractionWriter {
      * @param path The path to the file to write the abstractions to.
      * @throws IOException
      */
-    public AbstractionWriter(String path) throws IOException {
+    public AbstractionJsonWriter(String path) throws IOException {
         FileWriter fileWriter = new FileWriter(path);
         bufferedWriter = new BufferedWriter(fileWriter);
         objectMapper = new ObjectMapper();
