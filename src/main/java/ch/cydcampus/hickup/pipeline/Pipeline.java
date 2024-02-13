@@ -23,6 +23,7 @@ import ch.cydcampus.hickup.util.AbstractionCsvWriter;
 /**
  * The Pipeline class is responsible to construct a pipeline according to the configuration and run it.
  * The pipeline consists of a data source, abstraction queues, multiplexer stages and feature rules.
+ * TODO: use doxygen comments for the class and methods
  */
 public class Pipeline {
 
@@ -96,7 +97,7 @@ public class Pipeline {
 
             // remove this abstraction from active abstractions
             if(abstraction.getLevel() > 0) {
-                multiplexerStages[abstraction.getLevel() - 1].removeAbstractionStage(abstraction); // TODO: This is faulty. Should not remove if active abstraction is not sealed
+                multiplexerStages[abstraction.getLevel() - 1].removeAbstractionStage(abstraction); // TODO: maybe faulty
             }
 
             processAbstraction(abstraction, idx);
