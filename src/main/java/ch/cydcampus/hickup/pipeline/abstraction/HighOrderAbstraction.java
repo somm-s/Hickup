@@ -15,6 +15,7 @@ public class HighOrderAbstraction implements Abstraction {
     private int level;
     private long lastUpdateTime;
     private long firstUpdateTime;
+    private long refreshTime;
     private List<Abstraction> children;
     private Feature[] features;
     private boolean sealed;
@@ -71,9 +72,11 @@ public class HighOrderAbstraction implements Abstraction {
         long updateTime = abstraction.getLastUpdateTime();
         if(updateTime > lastUpdateTime) {
             lastUpdateTime = updateTime;
+            refreshTime = Math.max(refreshTime, updateTime);
         }
         if(firstUpdateTime == -1) {
             firstUpdateTime = abstraction.getFirstUpdateTime();
+            refreshTime = abstraction.getLastUpdateTime();
         }
         children.add(abstraction);
     }
@@ -133,5 +136,15 @@ public class HighOrderAbstraction implements Abstraction {
         }
         sb.deleteCharAt(sb.length() - 1);
         return sb.toString();
+    }
+
+    @Override
+    public void setRefreshTime(long time) {
+        refreshTime = time;
+    }
+
+    @Override
+    public long getRefreshTime() {
+        return refreshTime;
     }
 }

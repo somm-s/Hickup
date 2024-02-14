@@ -116,7 +116,7 @@ public class Pipeline {
             AbstractionStage stage = multiplexerStages[i].getAbstractionStage(packetAbstraction);
             Abstraction activeAbstraction = stage.getActiveAbstraction();
             if(activeAbstraction != null && !activeAbstraction.isSealed()) {
-                stage.getActiveAbstraction().setLastUpdateTime(packetAbstraction.getLastUpdateTime());
+                stage.getActiveAbstraction().setRefreshTime(packetAbstraction.getLastUpdateTime());
             }
         }
     }

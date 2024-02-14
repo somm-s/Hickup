@@ -114,4 +114,14 @@ public class PacketAbstraction implements Abstraction {
         sb.deleteCharAt(sb.length() - 1);
         return sb.toString();
     }
+
+    @Override
+    public void setRefreshTime(long time) {
+        throw new UnsupportedOperationException("Unimplemented method 'setRefreshTime'");
+    }
+
+    @Override
+    public long getRefreshTime() {
+        throw new UnsupportedOperationException("Unimplemented method 'getRefreshTime'");
+    }
 }

@@ -26,6 +26,19 @@ public interface Abstraction {
      */
     public void setLastUpdateTime(long time);
 
+
+    /**
+     * Timer used to determine whether the abstraction is ready to be consumed from the queue.
+     * @param time
+     */
+    public void setRefreshTime(long time);
+
+    /**
+     * Get the last time a packet arrived with the same multiplexer attribute. This means that the packet could potentially
+     * be added to this abstraction.
+     */
+    public long getRefreshTime();
+
     /**
      * Get the time of the first update of this abstraction. This time is equal to the timestamp of the first packet 
      * that was added to this abstraction or a descendant abstraction. This time is not updated once initialized.
