@@ -39,9 +39,7 @@ public class AbstractionRule {
         if(activeAbstraction == null) {
             return false;
         }
-        // TODO: For abstraction levels with timeout 0 to work, we need to keep track of the largest last update time of all children of the active abstraction.
-        // This is because the last update time of the active abstraction is currently used as an over approximation which is updated by each packet with the same
-        // multiplexer attribute.
+
         long timeDiff = newAbstraction.getFirstUpdateTime() - activeAbstraction.getLastUpdateTime(); 
         if(timeDiff > timeout) {
             return false;
