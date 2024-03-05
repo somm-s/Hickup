@@ -98,6 +98,8 @@ public class FileSource extends DataSource {
                     readZipFile(file);
                 }
                 else if(file.getName().endsWith(".csv")) {
+                    System.out.println("Processing file " + file.getName());
+
                     readTextFile(file);
                 }
             }

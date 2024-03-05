@@ -19,6 +19,7 @@ import ch.cydcampus.hickup.pipeline.source.NetworkSource;
 import ch.cydcampus.hickup.pipeline.stage.AbstractionStage;
 import ch.cydcampus.hickup.pipeline.stage.MultiplexerStage;
 import ch.cydcampus.hickup.util.AbstractionCsvWriter;
+import ch.cydcampus.hickup.util.BurstStreamWriter;
 
 /**
  * The Pipeline class is responsible to construct a pipeline according to the configuration and run it.
@@ -32,7 +33,7 @@ public class Pipeline {
     private long logicClock;
     private MultiplexerStage[] multiplexerStages;
     private boolean finished;
-    private AbstractionCsvWriter abstractionWriter;
+    private BurstStreamWriter abstractionWriter;
 
     private Pipeline(String outputFilePath) throws IOException {
         abstractionQueues = new AbstractionQueue[PipelineConfig.NUM_ABSTRACTION_LEVELS];
@@ -45,7 +46,7 @@ public class Pipeline {
         }
         this.finished = false;
         this.logicClock = 0;
-        this.abstractionWriter = new AbstractionCsvWriter(outputFilePath, PipelineConfig.MIN_TOKENIZATION_LEVEL, PipelineConfig.MAX_TOKENIZATION_LEVEL);
+        this.abstractionWriter = new BurstStreamWriter(outputFilePath);
     }
 
     /** Constructs a new pipeline from a network interface
@@ -96,17 +97,17 @@ public class Pipeline {
             abstraction.seal();
 
             // remove this abstraction from active abstractions
-            if(abstraction.getLevel() > 0) {
-                multiplexerStages[abstraction.getLevel() - 1].removeAbstractionStage(abstraction); // TODO: maybe faulty
-            }
-
+            // if(abstraction.getLevel() > 0) {
+            //     multiplexerStages[abstraction.getLevel() - 1].removeAbstractionStage(abstraction); // TODO: maybe faulty
+            // }
+            
             processAbstraction(abstraction, idx);
             if(idx == 0) {
                 idx = (idx + 1) % PipelineConfig.NUM_ABSTRACTION_LEVELS;
             }
         }
         abstractionWriter.close();
-    }
+    } 
 
     private void updateAbstractions(Abstraction packetAbstraction) {
         for(FeatureCombinationRule rule : PipelineConfig.MULTIPLEXER_ID_RULES) {
@@ -131,7 +132,8 @@ public class Pipeline {
             }
         }
         if(level == PipelineConfig.MAX_TOKENIZATION_LEVEL) {
-            abstractionWriter.writeAbstraction(abstraction, -1);
+            // abstractionWriter.writeAbstraction(abstraction, -1); // use this for CsvAbstractioWriter
+            abstractionWriter.writeAbstraction(abstraction);
             return;
         } else if(level >= PipelineConfig.MAX_TOKENIZATION_LEVEL) {
             return;

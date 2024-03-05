@@ -10,7 +10,7 @@ public class HighOrderAbstractionQueue implements AbstractionQueue {
 
     private long timeout;
     private Queue<Abstraction> queue;
-    private static final long MAX_TIMEOUT = Long.MAX_VALUE; // 100000000; // 100 seconds. Every abstraction must be consumed within this time.
+    private static final long MAX_TIMEOUT = 100000000; // Long.MAX_VALUE; // 100000000; // 100 seconds. Every abstraction must be consumed within this time.
 
     /**
      * Create a new high order abstraction queue. To ensure an abstraction is sealed when consumed,
@@ -47,7 +47,7 @@ public class HighOrderAbstractionQueue implements AbstractionQueue {
         if(isEmpty()) {
             return null;
         }
-        if(queue.peek().getRefreshTime() + timeout < currentTime) { //|| queue.peek().getFirstUpdateTime() + MAX_TIMEOUT < currentTime) {
+        if(queue.peek().getRefreshTime() + timeout < currentTime || queue.peek().getFirstUpdateTime() + MAX_TIMEOUT < currentTime) {
             return queue.poll();
         }
         return null;
@@ -65,6 +65,10 @@ public class HighOrderAbstractionQueue implements AbstractionQueue {
      */
     public boolean isEmpty() {
         return queue.isEmpty();
+    }
+
+    public Abstraction peek() {
+        return queue.peek();
     }
 
 }

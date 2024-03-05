@@ -60,5 +60,10 @@ public abstract class DataSource implements AbstractionQueue {
     public void addAbstraction(Abstraction abstraction) {
         throw new UnsupportedOperationException("Not supported for data source.");
     }
+
+    @Override
+    public int getSize() {
+        return queue.size();
+    }
     
 }

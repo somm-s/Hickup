@@ -20,4 +20,6 @@ public interface AbstractionQueue {
      */
     public void addAbstraction(Abstraction abstraction);
 
+    public int getSize();
+
 }

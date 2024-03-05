@@ -34,7 +34,6 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
     private final String filter;
 
     private File[] pcapFiles; 
-    private BufferedWriter writer;
 
     private int start;
     private int end;
@@ -83,6 +82,7 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
         RecursivePcapConversionTask task = new RecursivePcapConversionTask(outputPath, filter, listOfFiles, 0, listOfFiles.length);
         forkJoinPool.invoke(task);
         forkJoinPool.shutdown();
+
         File[] outputFolders = new File(outputPath).listFiles();
         for(File outputFolder : outputFolders) {
             if(outputFolder.isDirectory() && outputFolder.listFiles().length == 0) {
@@ -91,6 +91,14 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
         }
         File[] outputFiles = new File(outputPath).listFiles();
         File[] oldFiles = outputFiles[0].listFiles();
+
+        // delete all files that do not end with .csv
+        for(File outputFile : oldFiles) {
+            if(outputFile.isFile() && !hasFileEnding(outputFile, "csv")) {
+                outputFile.delete();
+            }
+        }
+
         FolderCompressor.compressFolder(outputFiles[0].getAbsolutePath());
         for(File outputFile : oldFiles) {
             if(outputFile.isFile()) {
@@ -157,14 +165,9 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
                 String outFileName = timeString.substring(0, colonIndex + 3) + ".csv";
                 File outFile = new File(Paths.get(pcapOutputDirectory.getAbsolutePath()).resolve(outFileName).toString());
                 try {
-                    if(!outFile.exists()) {
-                        if(writer != null) {
-                            writer.flush();
-                            writer.close();
-                        }
-                        writer = new BufferedWriter(new FileWriter(outFile, true));
-                    }
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(outFile, true));
                     writer.write(abstraction.serializeString() + "\n");
+                    writer.close();
                 } catch (IOException e) {
                     System.out.println("Couldn't write point to: " + outFile.getAbsolutePath());
                     e.printStackTrace();
@@ -178,14 +181,6 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
             e.printStackTrace();
         }
         handle.close();
-        if(writer != null) {
-            try {
-                writer.flush();
-                writer.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         File file = new File(pcapFilePath);
         file.delete();
         System.out.println("Worker " + Thread.currentThread().getId() + " Finished " + pcapFiles[start].getName());
