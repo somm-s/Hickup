@@ -97,9 +97,9 @@ public class Pipeline {
             abstraction.seal();
 
             // remove this abstraction from active abstractions
-            // if(abstraction.getLevel() > 0) {
-            //     multiplexerStages[abstraction.getLevel() - 1].removeAbstractionStage(abstraction); // TODO: maybe faulty
-            // }
+            if(abstraction.getLevel() > 0) {
+                multiplexerStages[abstraction.getLevel() - 1].removeAbstractionStage(abstraction); // TODO: maybe faulty
+            }
             
             processAbstraction(abstraction, idx);
             if(idx == 0) {
