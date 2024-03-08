@@ -44,7 +44,7 @@ public class PipelineConfig {
         new AbstractionRule(new int[] { }, TIMEOUTS[1]),
     };
     public static final MultiplexerRule[] MULTIPLEXER_RULES = {
-        new MultiplexerRule(8, 8),
+        new MultiplexerRule(7, 7),
     };
     public static final FeatureCombinationRule[] MULTIPLEXER_ID_RULES = {
         new FlowIdCombinationRule().setOutputIndex(7), new HostPairIdCombinationRule().setOutputIndex(8)
@@ -62,7 +62,7 @@ public class PipelineConfig {
         {new FeatureCopyRule().setInputIndex(8).setOutputIndex(0)}
     };
     public static final FilterRule[][] FILTER_RULES = {
-        {new HighPassSizeFilter(150)},
+        {new HighPassSizeFilter(100)},
         {}
     };
     public static final FeatureDifferentialRule[][] FEATURE_DIFFERENTIAL_RULES = {

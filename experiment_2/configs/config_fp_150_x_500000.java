@@ -44,7 +44,7 @@ public class PipelineConfig {
         new AbstractionRule(new int[] { }, TIMEOUTS[1]),
     };
     public static final MultiplexerRule[] MULTIPLEXER_RULES = {
-        new MultiplexerRule(8, 8),
+        new MultiplexerRule(7, 7),
     };
     public static final FeatureCombinationRule[] MULTIPLEXER_ID_RULES = {
         new FlowIdCombinationRule().setOutputIndex(7), new HostPairIdCombinationRule().setOutputIndex(8)

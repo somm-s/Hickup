@@ -25,7 +25,7 @@ public class PipelineConfig {
     public static final int MAX_ABSTRACTION_LEVEL = NUM_ABSTRACTION_LEVELS - 1;
     public static final int MIN_TOKENIZATION_LEVEL = 0;
     public static final int MAX_TOKENIZATION_LEVEL = 1;
-    public static final long[] TIMEOUTS = { 0, 500000 };
+    public static final long[] TIMEOUTS = { 0, 15000000 };
     public static final int SRC_IP_INDEX = 0;
     public static final int DST_IP_INDEX = 1;
     public static final int SRC_PORT_INDEX = 2;
@@ -62,7 +62,7 @@ public class PipelineConfig {
         {new FeatureCopyRule().setInputIndex(8).setOutputIndex(0)}
     };
     public static final FilterRule[][] FILTER_RULES = {
-        {new HighPassSizeFilter(150)},
+        {new HighPassSizeFilter(100)},
         {}
     };
     public static final FeatureDifferentialRule[][] FEATURE_DIFFERENTIAL_RULES = {

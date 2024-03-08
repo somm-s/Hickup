@@ -25,7 +25,7 @@ public class PipelineConfig {
     public static final int MAX_ABSTRACTION_LEVEL = NUM_ABSTRACTION_LEVELS - 1;
     public static final int MIN_TOKENIZATION_LEVEL = 0;
     public static final int MAX_TOKENIZATION_LEVEL = 1;
-    public static final long[] TIMEOUTS = { 0, 500000 };
+    public static final long[] TIMEOUTS = { 0, 1000000 };
     public static final int SRC_IP_INDEX = 0;
     public static final int DST_IP_INDEX = 1;
     public static final int SRC_PORT_INDEX = 2;
@@ -44,7 +44,7 @@ public class PipelineConfig {
         new AbstractionRule(new int[] { }, TIMEOUTS[1]),
     };
     public static final MultiplexerRule[] MULTIPLEXER_RULES = {
-        new MultiplexerRule(8, 8),
+        new MultiplexerRule(7, 7),
     };
     public static final FeatureCombinationRule[] MULTIPLEXER_ID_RULES = {
         new FlowIdCombinationRule().setOutputIndex(7), new HostPairIdCombinationRule().setOutputIndex(8)

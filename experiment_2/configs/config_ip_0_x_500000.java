@@ -62,7 +62,7 @@ public class PipelineConfig {
         {new FeatureCopyRule().setInputIndex(8).setOutputIndex(0)}
     };
     public static final FilterRule[][] FILTER_RULES = {
-        {new HighPassSizeFilter(150)},
+        {},
         {}
     };
     public static final FeatureDifferentialRule[][] FEATURE_DIFFERENTIAL_RULES = {
