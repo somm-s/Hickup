@@ -24,7 +24,7 @@ do
     mkdir -p "$JAR_OUTPUT_FOLDER"
 
     # Run the jar file
-    java -Xmx50g -jar $JAR_FILE $DATASET "" $JAR_OUTPUT_FOLDER
+    java -Xmx115g -jar $JAR_FILE $DATASET "" $JAR_OUTPUT_FOLDER
 
     # Compress the output folder
     zip -r "$JAR_OUTPUT_FOLDER.zip" "$JAR_OUTPUT_FOLDER"
