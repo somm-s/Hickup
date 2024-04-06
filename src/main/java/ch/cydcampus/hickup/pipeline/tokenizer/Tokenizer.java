@@ -1,5 +1,7 @@
 package ch.cydcampus.hickup.pipeline.tokenizer;
 
+import java.io.IOException;
+
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
 
 public interface Tokenizer {
@@ -7,6 +9,7 @@ public interface Tokenizer {
      * Tokenizes the feature at the defined index of the abstraction.
      * @param abstraction
      * @return the character that the feature is mapped to
+     * @throws IOException 
      */
-    public String tokenize(Abstraction abstraction);
+    public String tokenize(Abstraction abstraction) throws IOException;
 }

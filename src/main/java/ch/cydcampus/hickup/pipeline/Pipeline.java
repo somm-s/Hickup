@@ -18,13 +18,13 @@ import ch.cydcampus.hickup.pipeline.source.FileSource;
 import ch.cydcampus.hickup.pipeline.source.NetworkSource;
 import ch.cydcampus.hickup.pipeline.stage.AbstractionStage;
 import ch.cydcampus.hickup.pipeline.stage.MultiplexerStage;
+import ch.cydcampus.hickup.pipeline.tokenizer.PacketTokenizer;
 import ch.cydcampus.hickup.util.AbstractionCsvWriter;
 import ch.cydcampus.hickup.util.BurstStreamWriter;
 
 /**
  * The Pipeline class is responsible to construct a pipeline according to the configuration and run it.
  * The pipeline consists of a data source, abstraction queues, multiplexer stages and feature rules.
- * TODO: use doxygen comments for the class and methods
  */
 public class Pipeline {
 
@@ -33,7 +33,7 @@ public class Pipeline {
     private long logicClock;
     private MultiplexerStage[] multiplexerStages;
     private boolean finished;
-    private BurstStreamWriter abstractionWriter;
+    private PacketTokenizer packetTokenizer;
 
     private Pipeline(String outputFilePath) throws IOException {
         abstractionQueues = new AbstractionQueue[PipelineConfig.NUM_ABSTRACTION_LEVELS];
@@ -46,7 +46,7 @@ public class Pipeline {
         }
         this.finished = false;
         this.logicClock = 0;
-        this.abstractionWriter = new BurstStreamWriter(outputFilePath);
+        this.packetTokenizer = new PacketTokenizer(outputFilePath);
     }
 
     /** Constructs a new pipeline from a network interface
@@ -106,7 +106,6 @@ public class Pipeline {
                 idx = (idx + 1) % PipelineConfig.NUM_ABSTRACTION_LEVELS;
             }
         }
-        abstractionWriter.close();
     } 
 
     private void updateAbstractions(Abstraction packetAbstraction) {
@@ -133,7 +132,7 @@ public class Pipeline {
         }
         if(level == PipelineConfig.MAX_TOKENIZATION_LEVEL) {
             // abstractionWriter.writeAbstraction(abstraction, -1); // use this for CsvAbstractioWriter
-            abstractionWriter.writeAbstraction(abstraction);
+            packetTokenizer.tokenize(abstraction);
             return;
         } else if(level >= PipelineConfig.MAX_TOKENIZATION_LEVEL) {
             return;
