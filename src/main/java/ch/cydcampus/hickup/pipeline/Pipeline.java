@@ -19,6 +19,7 @@ import ch.cydcampus.hickup.pipeline.source.NetworkSource;
 import ch.cydcampus.hickup.pipeline.stage.AbstractionStage;
 import ch.cydcampus.hickup.pipeline.stage.MultiplexerStage;
 import ch.cydcampus.hickup.pipeline.tokenizer.PacketTokenizer;
+import ch.cydcampus.hickup.pipeline.tokenizer.PacketTokenizerSocket;
 import ch.cydcampus.hickup.util.AbstractionCsvWriter;
 import ch.cydcampus.hickup.util.BurstStreamWriter;
 
@@ -33,7 +34,7 @@ public class Pipeline {
     private long logicClock;
     private MultiplexerStage[] multiplexerStages;
     private boolean finished;
-    private PacketTokenizer packetTokenizer;
+    private PacketTokenizerSocket packetTokenizer;
 
     private Pipeline(String outputFilePath) throws IOException {
         abstractionQueues = new AbstractionQueue[PipelineConfig.NUM_ABSTRACTION_LEVELS];
@@ -46,7 +47,7 @@ public class Pipeline {
         }
         this.finished = false;
         this.logicClock = 0;
-        this.packetTokenizer = new PacketTokenizer(outputFilePath);
+        this.packetTokenizer = new PacketTokenizerSocket(outputFilePath);
     }
 
     /** Constructs a new pipeline from a network interface
