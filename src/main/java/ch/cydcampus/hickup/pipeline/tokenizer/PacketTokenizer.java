@@ -14,11 +14,12 @@ import ch.cydcampus.hickup.util.CrossProductIterator;
  * This class is not compatible with other abstraction trees.
  */
 public class PacketTokenizer {
-    private int[] isLogScaleOptions = {1};
+
+    private int[] isLogScaleOptions = {0};
     private int[] numBucketsOptions = {30};
     private int[] heartBeatIntervalOptions = {100000};
     private int[] isBidirectionalOptions = {0};
-    private int[] maxLogValueOptions = {15};
+    private int[] maxLogValueOptions = {11};
     private int[] maxLinearValueOptions = {1500}; // needs to be same length as maxLogValueOptions
 
     private int minLogValue = 0;
@@ -28,6 +29,8 @@ public class PacketTokenizer {
     private String outputPath;
 
     List<List<Integer>> crossProductIndices;
+
+    
 
     public PacketTokenizer(String outputPath) {
         this.outputPath = outputPath;
@@ -62,6 +65,7 @@ public class PacketTokenizer {
             } else {
                 configSuffix += "uni_";
             }
+
     
             configSuffix += numBuckets + "-buck_";
             configSuffix += minValue + "-" + maxValue;
@@ -112,13 +116,15 @@ public class PacketTokenizer {
                 }
             }
 
-            int tokenID = getTokenID(isLogScale, numBuckets, minValue, maxValue, bytes);
+            int tokenID = getTokenID(isLogScale, numBuckets, minValue, maxValue, bytes, bucketOffset);
             if(!isBidirectional) {
-                boolean leftToRight = false; // right: from left IP to right IP
+                boolean leftToRight = false; // from left IP to right IP
                 String src = child.getFeature(PipelineConfig.SRC_IP_INDEX).toString();
                 leftToRight = src.equals(ips[0]);
                 int leftID = leftToRight ? tokenID : (tokenID + numBuckets); // receiving tokens are in the second half
                 int rightID = leftToRight ? (tokenID + numBuckets) : tokenID;
+                tokenID = leftID; // take left to track if similar token is received
+
                 rightBufferedWriter.write(rightID + " ");
                 leftBufferedWriter.write(leftID + " ");
             } else {
@@ -140,7 +146,7 @@ public class PacketTokenizer {
         }
     }
 
-    private int getTokenID(boolean isLogScale, int numBuckets, int minValue, int maxValue, long bytes) {
+    private int getTokenID(boolean isLogScale, int numBuckets, int minValue, int maxValue, long bytes, int offset) {
 
         double bytesDouble = bytes;
         if(isLogScale) {
@@ -148,15 +154,15 @@ public class PacketTokenizer {
         }
 
         if(bytesDouble <= minValue) {
-            return bucketOffset;
+            return offset;
         }
 
         if(bytesDouble >= maxValue) {
-            return numBuckets + bucketOffset - 1;
+            return numBuckets + offset - 1;
         }
 
-        int bucket = (int) Math.ceil(bytesDouble * (((double) numBuckets) / (maxValue - minValue)));
-        return bucket + bucketOffset;
+        int bucket = (int) (bytesDouble * (((double) (numBuckets - 1)) / (maxValue - minValue)));
+        return bucket + offset;
     }
 
     private double getLogBytes(long bytes) {
