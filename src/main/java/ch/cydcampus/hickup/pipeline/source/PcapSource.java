@@ -56,11 +56,11 @@ public class PcapSource extends DataSource {
     }
 
     private void capture() {
-        try {
-            while (isRunning) {
+        while (isRunning) {
+            try {
                 Packet packet = pcapHandle.getNextPacketEx();
                 byte[] rawData = packet.getPayload().getRawData();
-                if(rawData.length < 50) {
+                if(rawData.length <= 50) {
                     continue;
                 }
 
@@ -135,12 +135,12 @@ public class PcapSource extends DataSource {
                 Abstraction packetAbstraction = AbstractionFactory.getInstance().allocateFromFields(srcAddr, dstAddr, srcPort, dstPort, protocol, bytes, TimeInterval.timeToMicro(pcapHandle.getTimestamp()));
                 this.produce(packetAbstraction);
 
+            } catch (Exception e) {
+                System.out.println("Skipping due to exception: " + e.getMessage());
+                e.printStackTrace();
             }
-        } catch (PcapNativeException | NotOpenException | EOFException | TimeoutException | UnknownHostException e) {
-            e.printStackTrace();
-        } finally {
-            pcapHandle.close();
         }
+        pcapHandle.close();
     }
 
 

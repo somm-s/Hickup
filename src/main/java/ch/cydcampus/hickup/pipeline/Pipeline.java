@@ -82,10 +82,19 @@ public class Pipeline {
     public void runPipeline() throws IOException {
         dataSource.start();
         int idx = 0;
+        boolean prevNull = false;
         while(!finished || idx != 0) {
             Abstraction abstraction = abstractionQueues[idx].getFirstAbstraction(logicClock);
             if(abstraction == null) {
                 idx = (idx + 1) % PipelineConfig.NUM_ABSTRACTION_LEVELS;
+                if(prevNull) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                prevNull = true;
                 continue;
             } else if(idx == 0) {
                 if(abstraction == PacketAbstraction.FINISH_PACKET) {
@@ -98,6 +107,7 @@ public class Pipeline {
                     updateAbstractions(abstraction);    
                 }
             }
+            prevNull = false;
             abstraction.seal();
 
             // remove this abstraction from active abstractions
