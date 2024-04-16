@@ -86,8 +86,10 @@ public class PacketTokenizerSocket {
     private void tokenizeWithConfig(boolean isLogScale, int numBuckets, boolean useHeartBeats, int heartBeatInterval, boolean isBidirectional, int maxValue, int minValue, String configDir, Abstraction abstraction) throws IOException {
         String hostPairId = abstraction.getFeature(0).asString();
         String[] ips = hostPairId.split("-");
-        String prefixLeft = ips[0] + "," + ips[1] + ",";
-        String prefixRight = ips[1] + "," + ips[0] + ",";
+        long startTime = abstraction.getFirstUpdateTime();
+        long endTime = abstraction.getLastUpdateTime();
+        String prefixLeft = "" + startTime + "," + endTime + "," + ips[0] + "," + ips[1] + ",";
+        String prefixRight = "" + startTime + "," + endTime + "," + ips[1] + "," + ips[0] + ",";
 
         long lastHeartBeatTime = abstraction.getFirstUpdateTime();
         for(Abstraction child : abstraction.getChildren()) {
