@@ -16,6 +16,7 @@ import ch.cydcampus.hickup.pipeline.filter.FilterRule;
 import ch.cydcampus.hickup.pipeline.source.DataSource;
 import ch.cydcampus.hickup.pipeline.source.FileSource;
 import ch.cydcampus.hickup.pipeline.source.NetworkSource;
+import ch.cydcampus.hickup.pipeline.source.PcapSource;
 import ch.cydcampus.hickup.pipeline.stage.AbstractionStage;
 import ch.cydcampus.hickup.pipeline.stage.MultiplexerStage;
 import ch.cydcampus.hickup.pipeline.tokenizer.PacketTokenizer;
@@ -53,10 +54,12 @@ public class Pipeline {
     /** Constructs a new pipeline from a network interface
      * @param interfaceName The name of the network interface
      * @param outputPath The path to the output file
+     * @throws Exception 
      */
-    public Pipeline(String interfaceName, String outputPath) throws PcapNativeException, NotOpenException, IOException {
+    public Pipeline(String interfaceName, String outputPath) throws Exception {
         this(outputPath);
-        dataSource = new NetworkSource(interfaceName, "");
+        dataSource = new PcapSource(interfaceName, "");
+        // dataSource = new NetworkSource(interfaceName, "");
         abstractionQueues[0] = dataSource;
     }
 
@@ -156,7 +159,7 @@ public class Pipeline {
         abstractionStage.setActiveAbstraction(activeAbstraction);
     }
 
-    public static void main(String[] args) throws PcapNativeException, NotOpenException, IOException {
+    public static void main(String[] args) throws Exception {
         if(args.length < 2) {
             System.out.println("Usage: java -jar pipeline.jar <interface> <outputPath>");
             return;

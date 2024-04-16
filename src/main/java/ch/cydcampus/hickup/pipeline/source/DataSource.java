@@ -21,6 +21,10 @@ public abstract class DataSource implements AbstractionQueue {
      * @return true if the abstraction was successfully inserted, false otherwise
      */
     protected boolean produce(Abstraction abstraction) {
+        if(queueLimitReached()) {
+            System.out.println("Queue limit reached. Dropping packet.");
+            return false;
+        }
         return queue.offer(abstraction);
     }
 

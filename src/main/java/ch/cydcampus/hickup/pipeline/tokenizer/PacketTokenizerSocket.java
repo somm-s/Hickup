@@ -34,6 +34,8 @@ public class PacketTokenizerSocket {
     private int heartBeatTokenID = 5;
     private String outputPath;
 
+    private String sendBatch = "";
+
     List<List<Integer>> crossProductIndices;
 
     
@@ -117,27 +119,30 @@ public class PacketTokenizerSocket {
             prefixLeft += leftID + " ";
         }
 
-        
-        boolean success = false;
-        while (!success) {
-            try {
-                Socket socket = new Socket(serverHostname, serverPort);
-                OutputStream out = socket.getOutputStream();
-                String message = prefixLeft + "\n" + prefixRight + "\n";
-                out.write(message.getBytes());
-                out.flush();
-                socket.close();
-                success = true; // if no exception is thrown, the operation is successful
-                System.out.println("Sent message of length " + message.length());
-            } catch (IOException e) {
-                System.out.println("Failed to send message. Retrying in 1 second.");
+        sendBatch += prefixLeft + "\n" + prefixRight + "\n";
+        if (sendBatch.length() > 100000) {
+            boolean success = false;
+            while (!success) {
                 try {
-                    Thread.sleep(1000); // wait for 1 second before retrying
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt(); // restore interrupted status
+                    Socket socket = new Socket(serverHostname, serverPort);
+                    OutputStream out = socket.getOutputStream();
+                    out.write(sendBatch.getBytes());
+                    out.flush();
+                    socket.close();
+                    success = true; // if no exception is thrown, the operation is successful
+                    System.out.println("Sent message of length " + sendBatch.length());
+                } catch (IOException e) {
+                    System.out.println("Failed to send message. Retrying in 1 second.");
+                    try {
+                        Thread.sleep(1000); // wait for 1 second before retrying
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt(); // restore interrupted status
+                    }
                 }
             }
+            sendBatch = "";
         }
+
 
     }
 
