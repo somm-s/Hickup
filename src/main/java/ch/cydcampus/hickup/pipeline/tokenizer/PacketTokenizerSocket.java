@@ -35,6 +35,7 @@ public class PacketTokenizerSocket {
     private String outputPath;
 
     private String sendBatch = "";
+    private int hardLimit = 10000; // if string length exceeds this, send it to the server.
 
     List<List<Integer>> crossProductIndices;
 
@@ -92,7 +93,12 @@ public class PacketTokenizerSocket {
         long endTime = abstraction.getLastUpdateTime();
         String prefixLeft = "" + startTime + "," + endTime + "," + ips[0] + "," + ips[1] + ",";
         String prefixRight = "" + startTime + "," + endTime + "," + ips[1] + "," + ips[0] + ",";
+        int internalFeature = abstraction.getFeature(1).asInt();
 
+        boolean takeLeft = true; // ip0 is external ip
+        if(internalFeature == 1) { // ip0 is internal
+            takeLeft = false;
+        }
         long lastHeartBeatTime = abstraction.getFirstUpdateTime();
         for(Abstraction child : abstraction.getChildren()) {
             long bytes = child.getFeature(PipelineConfig.BYTES_INDEX).asLong();
@@ -119,7 +125,12 @@ public class PacketTokenizerSocket {
             prefixLeft += leftID + " ";
         }
 
-        sendBatch += prefixLeft + "\n" + prefixRight + "\n";
+        if(takeLeft) {
+            sendBatch += prefixLeft + "\n";
+        } else {
+            sendBatch += prefixRight + "\n";
+        }
+        
         if (sendBatch.length() > 100000) {
             boolean success = false;
             while (!success) {

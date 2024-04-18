@@ -12,7 +12,7 @@ import ch.cydcampus.hickup.pipeline.abstraction.PacketAbstraction;
  */
 public abstract class DataSource implements AbstractionQueue {
 
-    private static final int MAX_QUEUE_SIZE = 200000;
+    private static final int MAX_QUEUE_SIZE = 2000000;
     private ConcurrentLinkedQueue<Abstraction> queue = new ConcurrentLinkedQueue<>();
 
     /**

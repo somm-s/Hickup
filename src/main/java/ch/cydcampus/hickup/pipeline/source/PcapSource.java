@@ -97,7 +97,6 @@ public class PcapSource extends DataSource {
                             continue;
                         }
                         protocol = Protocol.UDP;
-                        bytes -= 8;
                         srcPort = (ipData[20] & 0xFF) << 8 | (ipData[21] & 0xFF);
                         dstPort = (ipData[22] & 0xFF) << 8 | (ipData[23] & 0xFF);
                     } else {
@@ -124,11 +123,14 @@ public class PcapSource extends DataSource {
                         protocol = Protocol.UDP;
                         srcPort = (ipData[40] & 0xFF) << 8 | (ipData[41] & 0xFF);
                         dstPort = (ipData[42] & 0xFF) << 8 | (ipData[43] & 0xFF);
-                        bytes -= 8;
                     } else {
                         protocol = Protocol.ANY;
                     }
                 } else {
+                    continue;
+                }
+
+                if(bytes < 100 || bytes > 1000000) {
                     continue;
                 }
                 
