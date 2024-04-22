@@ -17,9 +17,11 @@ public class SubnetChecker {
     }
 
     public boolean isIpAddressInSubnets(InetAddress ipAddress) {
-        for (InetAddress subnet : subnetMasks.keySet()) {
-            byte[] subnetMask = subnetMasks.get(subnet);
+        for (Map.Entry<InetAddress, byte[]> entry : subnetMasks.entrySet()) {
+            InetAddress subnet = entry.getKey();
+            byte[] subnetMask = entry.getValue();
             if (isIpAddressInSubnet(ipAddress, subnet, subnetMask)) {
+                System.out.println("found...");
                 return true;
             }
         }
@@ -37,6 +39,7 @@ public class SubnetChecker {
         byte[] maskedIp = applySubnetMask(ipBytes, subnetMask);
         byte[] maskedSubnet = applySubnetMask(subnetBytes, subnetMask);
 
+
         for (int i = 0; i < ipBytes.length; i++) {
             if (maskedIp[i] != maskedSubnet[i]) {
                 return false;
@@ -47,18 +50,14 @@ public class SubnetChecker {
 
     private byte[] calculateSubnetMask(int prefixLength, int addressLength) {
         byte[] mask = new byte[addressLength];
-
-        for (int i = 0; i < addressLength; i++) {
-            int byteValue = 0xff;
-            int bitsRemaining = prefixLength - (i * 8);
-            if (bitsRemaining < 8) {
-                byteValue <<= (8 - bitsRemaining);
-            }
-            mask[i] = (byte) byteValue;
+    
+        for (int i = 0; i < prefixLength; i++) {
+            mask[i / 8] |= (1 << (7 - (i % 8)));
         }
-
+    
         return mask;
     }
+    
 
     private byte[] applySubnetMask(byte[] ipAddress, byte[] subnetMask) {
         byte[] maskedAddress = new byte[ipAddress.length];
@@ -72,14 +71,16 @@ public class SubnetChecker {
         try {
             InetAddress[] subnets = {
                     InetAddress.getByName("192.168.1.0"),
-                    InetAddress.getByName("2001:0db8:85a3::")
+                    InetAddress.getByName("2a07:1182:7:11::")
             };
-            int[] subnetPrefixLengths = {23, 48};
+            int[] subnetPrefixLengths = {24, 64};
 
             SubnetChecker checker = new SubnetChecker(subnets, subnetPrefixLengths);
 
             // Example usage
-            InetAddress ipAddress = InetAddress.getByName("192.168.1.100");
+            InetAddress ipAddress = InetAddress.getByName("2a07:1182:7:11:0:0:0:33");
+            System.out.println(ipAddress);
+            System.out.println(subnets[1]);
             boolean isInSubnet = checker.isIpAddressInSubnets(ipAddress);
             System.out.println("Is IP address in subnet? " + isInSubnet);
         } catch (UnknownHostException e) {
