@@ -102,7 +102,7 @@ public class PcapSource extends DataSource {
                     } else {
                         protocol = Protocol.ANY;
                     }
-                } else if(ipData[0] == 0x60) { // ipv6
+                } else if((ipData[0] & 0xF0) == 0x60) { // ipv6
                     if(ipData.length < 40) {
                         continue;
                     }
