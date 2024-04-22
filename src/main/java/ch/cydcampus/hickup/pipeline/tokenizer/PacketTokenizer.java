@@ -7,6 +7,7 @@ import java.util.List;
 
 import ch.cydcampus.hickup.pipeline.PipelineConfig;
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
+import ch.cydcampus.hickup.util.AblationIterator;
 import ch.cydcampus.hickup.util.CrossProductIterator;
 
 /*
@@ -15,10 +16,10 @@ import ch.cydcampus.hickup.util.CrossProductIterator;
  */
 public class PacketTokenizer {
 
-    private int[] isLogScaleOptions = {0};
-    private int[] numBucketsOptions = {30};
-    private int[] heartBeatIntervalOptions = {100000};
-    private int[] isBidirectionalOptions = {0};
+    private int[] isLogScaleOptions = {0, 1};
+    private int[] numBucketsOptions = {30, 20};
+    private int[] heartBeatIntervalOptions = {100000, 0};
+    private int[] isBidirectionalOptions = {0, 1};
     private int[] maxLogValueOptions = {11};
     private int[] maxLinearValueOptions = {1500}; // needs to be same length as maxLogValueOptions
 
@@ -30,11 +31,9 @@ public class PacketTokenizer {
 
     List<List<Integer>> crossProductIndices;
 
-    
-
     public PacketTokenizer(String outputPath) {
         this.outputPath = outputPath;
-        crossProductIndices = CrossProductIterator.crossProductIndices(
+        crossProductIndices = AblationIterator.ablationIndices(
             isLogScaleOptions, numBucketsOptions, heartBeatIntervalOptions, isBidirectionalOptions, maxLogValueOptions);
     }
 
