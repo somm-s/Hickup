@@ -21,7 +21,6 @@ public class SubnetChecker {
             InetAddress subnet = entry.getKey();
             byte[] subnetMask = entry.getValue();
             if (isIpAddressInSubnet(ipAddress, subnet, subnetMask)) {
-                System.out.println("found...");
                 return true;
             }
         }
