@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -26,6 +27,8 @@ import org.pcap4j.core.Pcaps;
 import org.pcap4j.packet.Packet;
 
 import ch.cydcampus.hickup.pipeline.abstraction.PacketAbstraction;
+import ch.cydcampus.hickup.pipeline.feature.Feature.Protocol;
+import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
 import ch.cydcampus.hickup.pipeline.abstraction.AbstractionFactory;
 
 public class RecursivePcapConversionTask extends RecursiveTask<Void>{
@@ -151,10 +154,87 @@ public class RecursivePcapConversionTask extends RecursiveTask<Void>{
             public void gotPacket(Packet packet) {
                 PacketAbstraction abstraction = null;
                 try {
-                    abstraction = AbstractionFactory.getInstance().allocateFromNetwork(packet, handle.getTimestamp());
+                    byte[] rawData = packet.getPayload().getRawData();
+                    if(rawData.length <= 50) {
+                        return;
+                    }
+
+                    byte[] ipData = new byte[rawData.length - 50];
+                    // make rawData human readable:
+                    for (int i = 50; i < rawData.length; i++) {
+                        ipData[i - 50] = rawData[i];
+                    }
+
+                    Protocol protocol = null;
+                    long bytes = 0;
+                    InetAddress srcAddr = null;
+                    InetAddress dstAddr = null;
+                    int srcPort = 0;
+                    int dstPort = 0;
+                    if(ipData[0] == 0x45) { // ipv4
+
+                        if(ipData.length < 20) {
+                            return;
+                        }
+
+                        srcAddr = InetAddress.getByAddress(new byte[] {ipData[12], ipData[13], ipData[14], ipData[15]});
+                        dstAddr = InetAddress.getByAddress(new byte[] {ipData[16], ipData[17], ipData[18], ipData[19]});
+                        bytes = ipData.length - 20;
+                        if(ipData[9] == 0x06) {
+                            if(ipData.length < 24) {
+                                return;
+                            }
+                            protocol = Protocol.TCP;
+                            srcPort = (ipData[20] & 0xFF) << 8 | (ipData[21] & 0xFF);
+                            dstPort = (ipData[22] & 0xFF) << 8 | (ipData[23] & 0xFF);
+                        } else if(ipData[9] == 0x11) {
+                            if(ipData.length < 24) {
+                                return;
+                            }
+                            protocol = Protocol.UDP;
+                            bytes -= 8;
+                            srcPort = (ipData[20] & 0xFF) << 8 | (ipData[21] & 0xFF);
+                            dstPort = (ipData[22] & 0xFF) << 8 | (ipData[23] & 0xFF);
+                        } else {
+                            protocol = Protocol.ANY;
+                        }
+                    } else if((ipData[0] & 0xF0) == 0x60) { // ipv6
+                        if(ipData.length < 40) {
+                            return;
+                        }
+                        srcAddr = InetAddress.getByAddress(new byte[] {ipData[8], ipData[9], ipData[10], ipData[11], ipData[12], ipData[13], ipData[14], ipData[15], ipData[16], ipData[17], ipData[18], ipData[19], ipData[20], ipData[21], ipData[22], ipData[23]});
+                        dstAddr = InetAddress.getByAddress(new byte[] {ipData[24], ipData[25], ipData[26], ipData[27], ipData[28], ipData[29], ipData[30], ipData[31], ipData[32], ipData[33], ipData[34], ipData[35], ipData[36], ipData[37], ipData[38], ipData[39]});
+                        bytes = ipData.length - 40;
+                        if(ipData[6] == 0x06) {
+                            if(ipData.length < 44) {
+                                return;
+                            }
+                            protocol = Protocol.TCP;
+                            srcPort = (ipData[40] & 0xFF) << 8 | (ipData[41] & 0xFF);
+                            dstPort = (ipData[42] & 0xFF) << 8 | (ipData[43] & 0xFF);
+                        } else if(ipData[6] == 0x11) {
+                            if(ipData.length < 44) {
+                                return;
+                            }
+                            protocol = Protocol.UDP;
+                            srcPort = (ipData[40] & 0xFF) << 8 | (ipData[41] & 0xFF);
+                            dstPort = (ipData[42] & 0xFF) << 8 | (ipData[43] & 0xFF);
+                            bytes -= 8;
+                        } else {
+                            protocol = Protocol.ANY;
+                        }
+                    } else {
+                        return;
+                    }
+                    
+                    abstraction = AbstractionFactory.getInstance().allocateFromFields(srcAddr, dstAddr, srcPort, dstPort, protocol, bytes, TimeInterval.timeToMicro(handle.getTimestamp()));
+
+
                 } catch (UnknownHostException e) {
                     System.out.println("Unknown host exception, skipping...");
                 }
+
+
                 if(abstraction == null) {
                     System.out.println("Could not parse abstraction, skipping...");
                     return;

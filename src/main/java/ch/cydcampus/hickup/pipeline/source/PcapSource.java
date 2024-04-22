@@ -103,8 +103,10 @@ public class PcapSource extends DataSource {
                     } else {
                         protocol = Protocol.ANY;
                     }
-                } else if(ipData[0] == 0x60) { // ipv6
+                } else if((ipData[0] & 0xF0) == 0x60) { // ipv6
+                    System.out.println("ipv6");
                     if(ipData.length < 40) {
+                        System.out.println("ipv6 too short");
                         continue;
                     }
                     srcAddr = InetAddress.getByAddress(new byte[] {ipData[8], ipData[9], ipData[10], ipData[11], ipData[12], ipData[13], ipData[14], ipData[15], ipData[16], ipData[17], ipData[18], ipData[19], ipData[20], ipData[21], ipData[22], ipData[23]});
@@ -112,6 +114,7 @@ public class PcapSource extends DataSource {
                     bytes = ipData.length - 40;
                     if(ipData[6] == 0x06) {
                         if(ipData.length < 44) {
+                            System.out.println("ipv6 tcp too short");
                             continue;
                         }
                         protocol = Protocol.TCP;
@@ -119,6 +122,7 @@ public class PcapSource extends DataSource {
                         dstPort = (ipData[42] & 0xFF) << 8 | (ipData[43] & 0xFF);
                     } else if(ipData[6] == 0x11) {
                         if(ipData.length < 44) {
+                            System.out.println("ipv6 udp too short");
                             continue;
                         }
                         protocol = Protocol.UDP;
@@ -129,6 +133,7 @@ public class PcapSource extends DataSource {
                         protocol = Protocol.ANY;
                     }
                 } else {
+                    System.out.println("Unknown protocol (no ip found)");
                     continue;
                 }
                 

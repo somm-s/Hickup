@@ -20,8 +20,12 @@ public class PcapDecompressor {
         FileOutputStream fos = new FileOutputStream(tempname);
         byte[] buffer = new byte[1024];
         int len;
-        while ((len = gzis.read(buffer)) > 0) {
-            fos.write(buffer, 0, len);
+        try {
+            while ((len = gzis.read(buffer)) > 0) {
+                fos.write(buffer, 0, len);
+            }
+        } catch (Exception e) {
+            System.out.println("Error while decompressing pcap file: " + e.getMessage());
         }
         gzis.close();
         fis.close();
