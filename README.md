@@ -61,3 +61,6 @@ java -jar target/hickup-1.0.jar pipeline <inputDir> <outputDir>
 
 ## Pipeline Configurations
 All configurations can be set under ``` src/main/java/ch/cydcampus/hickup/pipeline/PipelineConfig.java```. The meaning of the different configurations are described in the config file. The file contains configuration for both, the abstraction module and the tokenization module.
+
+## Testing
+Note that the current version has the integration tests removed due to incompatibility with the most recent output format.
