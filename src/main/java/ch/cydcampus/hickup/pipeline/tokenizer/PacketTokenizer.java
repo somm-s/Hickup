@@ -3,78 +3,79 @@ package ch.cydcampus.hickup.pipeline.tokenizer;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 
 import ch.cydcampus.hickup.pipeline.PipelineConfig;
 import ch.cydcampus.hickup.pipeline.abstraction.Abstraction;
-import ch.cydcampus.hickup.util.CrossProductIterator;
 
-/*
+/**
  * Tokenizes single packets either from flows or interactions. 
  * This class is not compatible with other abstraction trees.
  */
 public class PacketTokenizer {
 
-    private int[] isLogScaleOptions = {0};
-    private int[] numBucketsOptions = {30};
-    private int[] heartBeatIntervalOptions = {100000};
-    private int[] isBidirectionalOptions = {0};
-    private int[] maxLogValueOptions = {11};
-    private int[] maxLinearValueOptions = {1500}; // needs to be same length as maxLogValueOptions
+    private int bucketOffset;
+    private int heartBeatTokenID;
 
-    private int minLogValue = 0;
-    private int minLinearValue = 0;
-    private int bucketOffset = 10; // 0 - 9 is reserved for BERT tokens and heartbeat tokens
-    private int heartBeatTokenID = 5;
-    private String outputPath;
+    private boolean isLogScale;
+    private int numBuckets;
+    private int heartBeatInterval;
+    private boolean useHeartBeats; 
+    private boolean isBidirectional;
+    private int maxValue;
+    private int minValue;
+    private String configSuffix;
+    String configDir;
 
-    List<List<Integer>> crossProductIndices;
 
-    
-
+    /**
+     * Constructor for the PacketTokenizer. Outputs the tokenized packets to the given output directory, conforming with LS-BERT implementation for loading datasets.
+     * @param outputPath The path to the output directory.
+     */
     public PacketTokenizer(String outputPath) {
-        this.outputPath = outputPath;
-        crossProductIndices = CrossProductIterator.crossProductIndices(
-            isLogScaleOptions, numBucketsOptions, heartBeatIntervalOptions, isBidirectionalOptions, maxLogValueOptions);
+        isLogScale = PipelineConfig.IS_LOG_SCALE;
+        numBuckets = PipelineConfig.NUM_BUCKETS;
+        heartBeatInterval = PipelineConfig.HEART_BEAT_INTERVAL;
+        useHeartBeats = PipelineConfig.USE_HEART_BEATS;
+        isBidirectional = PipelineConfig.IS_BIDIRECTIONAL;
+        maxValue = PipelineConfig.MAX_VALUE;
+        minValue = PipelineConfig.MIN_VALUE;
+
+        bucketOffset = PipelineConfig.BUCKET_OFFSET;
+        heartBeatTokenID = PipelineConfig.HEART_BEAT_TOKEN_ID;
+        
+        configSuffix = "/";
+        if (isLogScale) {
+            configSuffix += "log_";
+        } else {
+            configSuffix += "lin_";
+        }
+        if (useHeartBeats) {
+            configSuffix += "hb" + heartBeatInterval + "_";
+        } else {
+            configSuffix += "no-hb_";
+        }
+        if (isBidirectional) {
+            configSuffix += "bi_";
+        } else {
+            configSuffix += "uni_";
+        }
+
+
+        configSuffix += numBuckets + "-buck_";
+        configSuffix += minValue + "-" + maxValue;
+
+        configDir = outputPath + configSuffix;
+        new java.io.File(configDir).mkdir();
     }
 
+
+    /**
+     * Tokenizes a single abstraction on the sentence level (max_tokenization_level in config file).
+     * @param abstraction The abstraction to tokenize.
+     * @throws IOException
+     */
     public void tokenize(Abstraction abstraction) throws IOException {
-
-        for(List<Integer> indices : crossProductIndices) {
-            boolean isLogScale = indices.get(0) == 1;
-            int numBuckets = numBucketsOptions[indices.get(1)];
-            int heartBeatInterval = heartBeatIntervalOptions[indices.get(2)];
-            boolean useHeartBeats = heartBeatInterval != 0;
-            boolean isBidirectional = indices.get(3) == 1;
-            int maxValue = isLogScale ? maxLogValueOptions[indices.get(4)] : maxLinearValueOptions[indices.get(4)];
-            int minValue = isLogScale ? minLogValue : minLinearValue;
-
-            String configSuffix = "/";
-            if (isLogScale) {
-                configSuffix += "log_";
-            } else {
-                configSuffix += "lin_";
-            }
-            if (useHeartBeats) {
-                configSuffix += "hb" + heartBeatInterval + "_";
-            } else {
-                configSuffix += "no-hb_";
-            }
-            if (isBidirectional) {
-                configSuffix += "bi_";
-            } else {
-                configSuffix += "uni_";
-            }
-
-    
-            configSuffix += numBuckets + "-buck_";
-            configSuffix += minValue + "-" + maxValue;
-
-            String configDir = outputPath + configSuffix;
-            new java.io.File(configDir).mkdir();
-
-            tokenizeWithConfig(isLogScale, numBuckets, useHeartBeats, heartBeatInterval, isBidirectional, maxValue, minValue, configDir, abstraction);
-        }
+        tokenizeWithConfig(isLogScale, numBuckets, useHeartBeats, heartBeatInterval, isBidirectional, maxValue, minValue, configDir, abstraction);
     }
 
     private void tokenizeWithConfig(boolean isLogScale, int numBuckets, boolean useHeartBeats, int heartBeatInterval, boolean isBidirectional, int maxValue, int minValue, String configDir, Abstraction abstraction) throws IOException {

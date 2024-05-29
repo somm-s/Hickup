@@ -16,13 +16,9 @@ import ch.cydcampus.hickup.pipeline.filter.FilterRule;
 import ch.cydcampus.hickup.pipeline.source.DataSource;
 import ch.cydcampus.hickup.pipeline.source.FileSource;
 import ch.cydcampus.hickup.pipeline.source.NetworkSource;
-import ch.cydcampus.hickup.pipeline.source.PcapSource;
 import ch.cydcampus.hickup.pipeline.stage.AbstractionStage;
 import ch.cydcampus.hickup.pipeline.stage.MultiplexerStage;
 import ch.cydcampus.hickup.pipeline.tokenizer.PacketTokenizer;
-import ch.cydcampus.hickup.pipeline.tokenizer.PacketTokenizerSocket;
-import ch.cydcampus.hickup.util.AbstractionCsvWriter;
-import ch.cydcampus.hickup.util.BurstStreamWriter;
 
 /**
  * The Pipeline class is responsible to construct a pipeline according to the configuration and run it.
@@ -35,7 +31,7 @@ public class Pipeline {
     private long logicClock;
     private MultiplexerStage[] multiplexerStages;
     private boolean finished;
-    private PacketTokenizerSocket packetTokenizer;
+    private PacketTokenizer packetTokenizer;
 
     private Pipeline(String outputFilePath) throws IOException {
         abstractionQueues = new AbstractionQueue[PipelineConfig.NUM_ABSTRACTION_LEVELS];
@@ -48,7 +44,7 @@ public class Pipeline {
         }
         this.finished = false;
         this.logicClock = 0;
-        this.packetTokenizer = new PacketTokenizerSocket(outputFilePath);
+        this.packetTokenizer = new PacketTokenizer(outputFilePath);
     }
 
     /** Constructs a new pipeline from a network interface
@@ -58,7 +54,7 @@ public class Pipeline {
      */
     public Pipeline(String interfaceName, String outputPath) throws Exception {
         this(outputPath);
-        dataSource = new PcapSource(interfaceName, "");
+        dataSource = new NetworkSource(interfaceName, "");
         // dataSource = new NetworkSource(interfaceName, "");
         abstractionQueues[0] = dataSource;
     }

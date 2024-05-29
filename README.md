@@ -1,4 +1,4 @@
-# HiCKUP Analyser
+# HiCKUP
 
 ![Project Logo](./logo.png)
 
@@ -9,6 +9,7 @@
   - [Introduction](#introduction)
   - [Installation](#installation)
   - [Usage](#usage)
+  - [Pipeline Configurations](#pipeline-configurations)
 
 ## Introduction
 
@@ -36,15 +37,27 @@ Follow these steps to install HiCKUP Analyser:
     ```
     mvn clean install
     ```
-
-5. Run integration tests with coverage information:
+5. Build and produce executable JAR with all dependencies:
     ```
-    mvn clean jacoco:prepare-agent test jacoco:report
+    mvn clean package
     ```
-
-Now, HiCKUP Analyser should be installed and ready to use. The pom file comes with jacoco for coverage analysis.
+    Now, the executable JAR file should be ready for usage under ```target/hickup-1.0.jar```.
 
 
 ## Usage
 
-Information is following.
+The HiCKUP project provides two core utilities: (1) A converter that can convert a large scale and possibly non-sequential PCAP dataset into a linearized, condensed and compressed CSV format and (2) a pipeline that converts the stream of packet metadata from this format into a hierarchical token sequence representation that can be used by language models.
+
+
+Run converter:
+```
+java -jar target/hickup-1.0.jar converter <inputDir> <outputDir>
+```
+
+Run pipeline:
+```
+java -jar target/hickup-1.0.jar pipeline <inputDir> <outputDir>
+```
+
+## Pipeline Configurations
+All configurations can be set under ``` src/main/java/ch/cydcampus/hickup/pipeline/PipelineConfig.java```. The meaning of the different configurations are described in the config file. The file contains configuration for both, the abstraction module and the tokenization module.
