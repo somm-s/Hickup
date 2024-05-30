@@ -44,25 +44,24 @@ public class PacketTokenizer {
         heartBeatTokenID = PipelineConfig.HEART_BEAT_TOKEN_ID;
         
         configSuffix = "/";
-        if (isLogScale) {
-            configSuffix += "log_";
-        } else {
-            configSuffix += "lin_";
-        }
+        configSuffix += "np-" + numBuckets + "_";
         if (useHeartBeats) {
-            configSuffix += "hb" + heartBeatInterval + "_";
+            configSuffix += "ht-" + heartBeatInterval + "_";
         } else {
-            configSuffix += "no-hb_";
+            configSuffix += "ht-0_";
         }
         if (isBidirectional) {
-            configSuffix += "bi_";
+            configSuffix += "di-bi_";
         } else {
-            configSuffix += "uni_";
+            configSuffix += "di-uni_";
         }
-
-
-        configSuffix += numBuckets + "-buck_";
-        configSuffix += minValue + "-" + maxValue;
+        configSuffix += "mn-" + minValue + "_";
+        configSuffix += "mx-" + maxValue + "_";
+        if (isLogScale) {
+            configSuffix += "lg_yes";
+        } else {
+            configSuffix += "lg-no";
+        }
 
         configDir = outputPath + configSuffix;
         new java.io.File(configDir).mkdir();
