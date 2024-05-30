@@ -44,7 +44,7 @@ public class PacketTokenizer {
         heartBeatTokenID = PipelineConfig.HEART_BEAT_TOKEN_ID;
         
         configSuffix = "/";
-        configSuffix += "np-" + numBuckets + "_";
+        configSuffix += "nb-" + numBuckets + "_";
         if (useHeartBeats) {
             configSuffix += "ht-" + heartBeatInterval + "_";
         } else {
